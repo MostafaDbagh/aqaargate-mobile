@@ -29,6 +29,18 @@
     "beds": "غرف",
     "baths": "حمامات"
   },
+  "common": {
+    "property": "عقار",
+    "properties": "عقارات"
+  },
+  "categoriesSection": {
+    "title": "تصفح حسب نوع العقار",
+    "subtitle": "شقق وفلل وأراضٍ والمزيد في جميع أنحاء سوريا"
+  },
+  "citiesSection": {
+    "title": "اكتشف عروض مدن سوريا",
+    "subtitle": "اكتشف الجمال في أهم المدن السورية"
+  },
   "header": {
     "login": "تسجيل الدخول",
     "account": "حسابي",

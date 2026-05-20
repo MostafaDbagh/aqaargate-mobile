@@ -156,7 +156,7 @@ export function Hero({ onSearch }: Props) {
                 <FilterIcon size={18} color="#334155" />
                 <Text className="text-slate-700 text-sm font-medium">{t('hero.filters')}</Text>
                 {status ? (
-                  <View className="w-2 h-2 rounded-full bg-orange-500 ml-1" />
+                  <View className="w-2 h-2 rounded-full bg-primary ml-1" />
                 ) : null}
               </Pressable>
 
@@ -180,10 +180,10 @@ export function Hero({ onSearch }: Props) {
 
           {emptyWarn ? (
             <View
-              className="mt-3 flex-row items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2"
+              className="mt-3 flex-row items-center gap-2 bg-primary-50 border border-primary-200 rounded-xl px-3 py-2"
               style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-              <WarningIcon size={16} color="#b91c1c" />
-              <Text className="text-red-700 text-sm flex-1">{t('hero.emptyWarning')}</Text>
+              <WarningIcon size={16} color="#f2695c" />
+              <Text className="text-danger text-sm flex-1">{t('hero.emptyWarning')}</Text>
             </View>
           ) : null}
         </View>

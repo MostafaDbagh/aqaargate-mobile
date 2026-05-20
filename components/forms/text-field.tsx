@@ -31,7 +31,7 @@ export function TextField<T extends FieldValues>({
         const hasError = !!error?.message;
         const errorText = hasError ? t(error!.message as string) : '';
         const borderClass = hasError
-          ? 'border-red-500'
+          ? 'border-danger'
           : focused
             ? 'border-brand-accent'
             : 'border-gray-200';
@@ -61,7 +61,7 @@ export function TextField<T extends FieldValues>({
               {rightSlot}
             </View>
             {hasError ? (
-              <Text className="text-red-500 text-xs mt-1">{errorText}</Text>
+              <Text className="text-danger text-xs mt-1">{errorText}</Text>
             ) : null}
           </View>
         );

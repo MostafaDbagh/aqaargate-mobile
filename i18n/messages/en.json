@@ -29,6 +29,18 @@
     "beds": "Beds",
     "baths": "Baths"
   },
+  "common": {
+    "property": "property",
+    "properties": "properties"
+  },
+  "categoriesSection": {
+    "title": "Browse by property type",
+    "subtitle": "Apartments, villas, lands, and more across Syria"
+  },
+  "citiesSection": {
+    "title": "Explore Syria Cities Offerings",
+    "subtitle": "Discover the beauty across Syria's major cities"
+  },
   "header": {
     "login": "Login",
     "account": "Account",

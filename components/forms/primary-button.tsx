@@ -23,7 +23,7 @@ const VARIANTS: Record<Variant, { container: string; text: string; spinner: stri
   ghost: {
     container: 'bg-transparent active:opacity-60',
     text: 'text-brand-accent',
-    spinner: '#e94545',
+    spinner: '#f1913d',
   },
 };
 

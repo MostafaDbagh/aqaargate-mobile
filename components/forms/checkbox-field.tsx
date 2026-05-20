@@ -33,7 +33,7 @@ export function CheckboxField<T extends FieldValues>({ name, control, label }: P
               <Text className="flex-1 text-gray-700 text-sm">{label}</Text>
             </Pressable>
             {error?.message ? (
-              <Text className="text-red-500 text-xs mt-1 ml-8">
+              <Text className="text-danger text-xs mt-1 ml-8">
                 {t(error.message as string)}
               </Text>
             ) : null}

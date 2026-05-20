@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { clearCredentials, persistCredentials } from '@/store/persist';
 
 import { authAPI, type OtpType, type SigninPayload, type SignupPayload } from './auth';
+import { categoryAPI } from './category';
+import { cityAPI } from './city';
 import { userAPI, type UpdateProfilePayload } from './user';
 
 export function useAuth() {
@@ -79,5 +81,21 @@ export function useUpdateProfile(userId: string) {
 export function useChangePassword(userId: string) {
   return useMutation({
     mutationFn: (newPassword: string) => userAPI.changePassword(userId, newPassword),
+  });
+}
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ['categories'],
+    queryFn: () => categoryAPI.getCategoryStats(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useCities() {
+  return useQuery({
+    queryKey: ['cities'],
+    queryFn: () => cityAPI.getCityStats(),
+    staleTime: 5 * 60 * 1000,
   });
 }

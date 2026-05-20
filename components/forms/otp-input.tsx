@@ -67,13 +67,13 @@ export function OtpInput<T extends FieldValues>({ name, control, autoSubmit }: P
                   textContentType="oneTimeCode"
                   autoComplete="sms-otp"
                   className={`flex-1 text-center text-xl font-semibold bg-white border ${
-                    error ? 'border-red-500' : 'border-gray-200'
+                    error ? 'border-danger' : 'border-gray-200'
                   } rounded-xl py-3 text-gray-900`}
                 />
               ))}
             </View>
             {error?.message ? (
-              <Text className="text-red-500 text-xs mt-2">
+              <Text className="text-danger text-xs mt-2">
                 {t(error.message as string)}
               </Text>
             ) : null}

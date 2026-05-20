@@ -14,6 +14,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Hero } from '@/components/hero';
 import { HomeHeader } from '@/components/home-header';
 import { PropertyCard } from '@/components/property-card';
+import { CategoriesSection } from '@/components/sections/categories-section';
+import { CitiesSection } from '@/components/sections/cities-section';
+import { SectionHeader } from '@/components/sections/section-header';
 import { searchListings, type Listing, type SearchParams } from '@/lib/api';
 
 export default function HomeScreen() {
@@ -31,13 +34,19 @@ export default function HomeScreen() {
     queryFn: () => searchListings(params),
   });
 
-  const handleSearch = ({ keyword, status }: { keyword: string; status: string }) => {
-    setParams({
-      limit: 21,
-      sort: 'newest',
-      ...(keyword ? { keyword } : {}),
-      ...(status ? { status } : {}),
+  const updateFilter = (patch: Partial<SearchParams>) => {
+    setParams((prev) => {
+      const next: SearchParams = { limit: 21, sort: 'newest', ...prev, ...patch };
+      // Strip empty values so they don't get serialized as `?key=`
+      (Object.keys(next) as (keyof SearchParams)[]).forEach((k) => {
+        if (next[k] === '' || next[k] === undefined) delete next[k];
+      });
+      return next;
     });
+  };
+
+  const handleHeroSearch = ({ keyword, status }: { keyword: string; status: string }) => {
+    updateFilter({ keyword: keyword || '', status: (status as SearchParams['status']) || '' });
   };
 
   return (
@@ -46,48 +55,56 @@ export default function HomeScreen() {
         data={listings as Listing[]}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <PropertyCard listing={item} />}
-        contentContainerStyle={{ paddingBottom: 32, backgroundColor: '#f8fafc' }}
+        contentContainerStyle={{ paddingBottom: 32, backgroundColor: '#ffffff' }}
         ListHeaderComponent={
           <View>
             <HomeHeader />
-            <Hero onSearch={handleSearch} />
-            <View className="px-5 pt-6 pb-3 bg-slate-50">
-              <Text className="text-brand text-xl font-bold">
-                {t('properties.title')}
-              </Text>
-              <Text className="text-gray-500 text-sm mt-1">
-                {t('properties.subtitle')}
-              </Text>
+            <Hero onSearch={handleHeroSearch} />
+
+            <CategoriesSection
+              activeName={params.propertyType}
+              onSelect={(name) => updateFilter({ propertyType: name })}
+            />
+
+            <CitiesSection
+              activeCity={(params as SearchParams & { city?: string }).city}
+              onSelect={(city) => updateFilter({ city } as Partial<SearchParams>)}
+            />
+
+            <View className="bg-white pt-8 pb-3">
+              <SectionHeader
+                title={t('properties.title')}
+                subtitle={t('properties.subtitle')}
+              />
             </View>
           </View>
         }
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center bg-slate-50">
-              <ActivityIndicator size="large" color="#e94545" />
+            <View className="py-16 items-center bg-white">
+              <ActivityIndicator size="large" color="#f1913d" />
             </View>
           ) : isError ? (
-            <View className="py-16 items-center bg-slate-50 px-5">
-              <Text className="text-gray-600 mb-3">{t('properties.error')}</Text>
+            <View className="py-16 items-center bg-white px-5">
+              <Text className="text-text mb-3">{t('properties.error')}</Text>
               <Pressable
                 onPress={() => refetch()}
-                className="bg-brand-accent px-5 py-2 rounded-full">
+                className="bg-primary px-5 py-2 rounded-full">
                 <Text className="text-white font-semibold">{t('properties.retry')}</Text>
               </Pressable>
             </View>
           ) : (
-            <View className="py-16 items-center bg-slate-50">
-              <Text className="text-gray-500">{t('properties.empty')}</Text>
+            <View className="py-16 items-center bg-white">
+              <Text className="text-note">{t('properties.empty')}</Text>
             </View>
           )
         }
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} tintColor="#e94545" />
+          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} tintColor="#f1913d" />
         }
-        // Apply horizontal padding to each card row via wrapper
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-5 bg-slate-50">
+          <View {...rest} className="px-5 bg-white">
             {children}
           </View>
         )}

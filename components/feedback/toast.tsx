@@ -17,10 +17,10 @@ type ToastContextValue = {
 const ToastContext = createContext<ToastContextValue | null>(null);
 
 const KIND_STYLES: Record<ToastKind, { bg: string; icon: keyof typeof Ionicons.glyphMap }> = {
-  success: { bg: 'bg-emerald-600', icon: 'checkmark-circle' },
-  error: { bg: 'bg-red-600', icon: 'alert-circle' },
-  warning: { bg: 'bg-amber-500', icon: 'warning' },
-  info: { bg: 'bg-slate-700', icon: 'information-circle' },
+  success: { bg: 'bg-success', icon: 'checkmark-circle' },
+  error: { bg: 'bg-danger', icon: 'alert-circle' },
+  warning: { bg: 'bg-warning', icon: 'warning' },
+  info: { bg: 'bg-secondary', icon: 'information-circle' },
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

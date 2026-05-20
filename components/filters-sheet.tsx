@@ -58,19 +58,19 @@ export function FiltersSheet({ visible, value, onSelect, onClose }: Props) {
                 }}
                 className={`flex-row items-center justify-between rounded-xl px-4 py-4 border ${
                   active
-                    ? 'bg-orange-50 border-orange-500'
-                    : 'bg-white border-gray-200 active:bg-gray-50'
+                    ? 'bg-primary-50 border-primary'
+                    : 'bg-white border-line active:bg-cream'
                 }`}>
                 <Text
                   className={`text-base font-semibold ${
-                    active ? 'text-orange-600' : 'text-gray-800'
+                    active ? 'text-primary' : 'text-secondary'
                   }`}>
                   {t(opt.labelKey)}
                 </Text>
                 {active ? (
-                  <View className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+                  <View className="w-2.5 h-2.5 rounded-full bg-primary" />
                 ) : (
-                  <View className="w-2.5 h-2.5 rounded-full border border-gray-300" />
+                  <View className="w-2.5 h-2.5 rounded-full border border-note" />
                 )}
               </Pressable>
             );

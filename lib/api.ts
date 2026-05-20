@@ -76,6 +76,7 @@ export type SearchParams = {
   keyword?: string;
   status?: string;
   propertyType?: string;
+  city?: string;
 };
 
 export async function searchListings(params: SearchParams = {}): Promise<Listing[]> {
