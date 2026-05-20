@@ -1,12 +1,24 @@
 {
   "hero": {
     "title": "Discover verified properties & investment opportunities in Syria.",
-    "subtitle": "Start your smart search with AqaarGate",
+    "subtitle": "AI Search",
     "forAll": "All",
     "forSale": "For sale",
     "forRent": "For rent",
-    "searchPlaceholder": "Search properties...",
-    "searchButton": "Search"
+    "searchPlaceholder": "Describe your dream property...",
+    "searchButton": "Search",
+    "send": "Send",
+    "filters": "Filters",
+    "filtersTitle": "Filters",
+    "filtersTooltip": "Open advanced filters",
+    "emptyWarning": "Type something to search, or pick a filter.",
+    "aiSearchPlaceholders": [
+      "Type what you want to search for about properties in Syria, e.g. (show me houses in Latakia)",
+      "Land for sale in Damascus",
+      "Sea view villa in Latakia under $200,000",
+      "Apartments for sale in Tartus with three bedrooms",
+      "Houses for sale in Homs"
+    ]
   },
   "properties": {
     "title": "Most Recent Listings",
