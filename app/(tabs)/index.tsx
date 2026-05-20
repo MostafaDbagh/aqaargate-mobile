@@ -1,98 +1,97 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  Text,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Hero } from '@/components/hero';
+import { HomeHeader } from '@/components/home-header';
+import { PropertyCard } from '@/components/property-card';
+import { searchListings, type Listing, type SearchParams } from '@/lib/api';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { t } = useTranslation();
+  const [params, setParams] = useState<SearchParams>({ limit: 21, sort: 'newest' });
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const {
+    data: listings = [],
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ['listings', 'search', params],
+    queryFn: () => searchListings(params),
+  });
+
+  const handleSearch = ({ keyword, status }: { keyword: string; status: string }) => {
+    setParams({
+      limit: 21,
+      sort: 'newest',
+      ...(keyword ? { keyword } : {}),
+      ...(status ? { status } : {}),
+    });
+  };
+
+  return (
+    <SafeAreaView edges={['top']} className="flex-1 bg-brand">
+      <FlatList
+        data={listings as Listing[]}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => <PropertyCard listing={item} />}
+        contentContainerStyle={{ paddingBottom: 32, backgroundColor: '#f8fafc' }}
+        ListHeaderComponent={
+          <View>
+            <HomeHeader />
+            <Hero onSearch={handleSearch} />
+            <View className="px-5 pt-6 pb-3 bg-slate-50">
+              <Text className="text-brand text-xl font-bold">
+                {t('properties.title')}
+              </Text>
+              <Text className="text-gray-500 text-sm mt-1">
+                {t('properties.subtitle')}
+              </Text>
+            </View>
+          </View>
+        }
+        ListEmptyComponent={
+          isLoading ? (
+            <View className="py-16 items-center bg-slate-50">
+              <ActivityIndicator size="large" color="#e94545" />
+            </View>
+          ) : isError ? (
+            <View className="py-16 items-center bg-slate-50 px-5">
+              <Text className="text-gray-600 mb-3">{t('properties.error')}</Text>
+              <Pressable
+                onPress={() => refetch()}
+                className="bg-brand-accent px-5 py-2 rounded-full">
+                <Text className="text-white font-semibold">{t('properties.retry')}</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View className="py-16 items-center bg-slate-50">
+              <Text className="text-gray-500">{t('properties.empty')}</Text>
+            </View>
+          )
+        }
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} tintColor="#e94545" />
+        }
+        // Apply horizontal padding to each card row via wrapper
+        CellRendererComponent={({ children, ...rest }) => (
+          <View {...rest} className="px-5 bg-slate-50">
+            {children}
+          </View>
+        )}
+      />
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
