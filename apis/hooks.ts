@@ -2,9 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { clearCredentials, persistCredentials } from '@/store/persist';
 
+import { agentAPI } from './agent';
 import { authAPI, type OtpType, type SigninPayload, type SignupPayload } from './auth';
 import { categoryAPI } from './category';
 import { cityAPI } from './city';
+import { listingAPI } from './listing';
+import { projectAPI, type ProjectsQuery } from './project';
 import { userAPI, type UpdateProfilePayload } from './user';
 
 export function useAuth() {
@@ -97,5 +100,60 @@ export function useCities() {
     queryKey: ['cities'],
     queryFn: () => cityAPI.getCityStats(),
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useListing(id: string | undefined) {
+  return useQuery({
+    queryKey: ['listing', id],
+    queryFn: () => listingAPI.getById(id as string),
+    enabled: !!id,
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useAgents() {
+  return useQuery({
+    queryKey: ['agents'],
+    queryFn: () => agentAPI.getAgents(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useAgent(id: string | undefined) {
+  return useQuery({
+    queryKey: ['agent', id],
+    queryFn: () => agentAPI.getAgentById(id as string),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useListingsByAgent(
+  agentId: string | undefined,
+  params: { limit?: number; sort?: string } = {}
+) {
+  return useQuery({
+    queryKey: ['listings', 'by-agent', agentId, params],
+    queryFn: () => listingAPI.getByAgent(agentId as string, params),
+    enabled: !!agentId,
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useProjects(params: ProjectsQuery = {}) {
+  return useQuery({
+    queryKey: ['projects', params],
+    queryFn: () => projectAPI.getProjects(params),
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useProject(identifier: string | undefined) {
+  return useQuery({
+    queryKey: ['project', identifier],
+    queryFn: () => projectAPI.getProjectBySlugOrId(identifier as string),
+    enabled: !!identifier,
+    staleTime: 60 * 1000,
   });
 }

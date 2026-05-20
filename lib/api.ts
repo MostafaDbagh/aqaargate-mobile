@@ -71,12 +71,40 @@ export type Listing = {
 };
 
 export type SearchParams = {
+  page?: number;
   limit?: number;
   sort?: string;
   keyword?: string;
   status?: string;
   propertyType?: string;
   city?: string;
+  state?: string;
+  cities?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  furnished?: string;
+  priceMin?: string;
+  priceMax?: string;
+  currency?: string;
+  sizeMin?: string;
+  sizeMax?: string;
+  sizeUnit?: string;
+  amenities?: string[];
+  isVip?: string;
+};
+
+export type ListingPagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+};
+
+export type ListingSearchResult = {
+  data: Listing[];
+  pagination: ListingPagination;
 };
 
 export async function searchListings(params: SearchParams = {}): Promise<Listing[]> {
@@ -84,4 +112,33 @@ export async function searchListings(params: SearchParams = {}): Promise<Listing
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.data)) return data.data;
   return [];
+}
+
+export async function searchListingsPaginated(
+  params: SearchParams = {}
+): Promise<ListingSearchResult> {
+  const { data } = await Axios.get('/listing/search', { params });
+  const listings: Listing[] = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.data)
+      ? data.data
+      : [];
+  const limit = Number(params.limit ?? 12);
+  const page = Number(params.page ?? 1);
+  const total = Number(data?.pagination?.total ?? listings.length);
+  const totalPages = Number(
+    data?.pagination?.totalPages ?? Math.max(1, Math.ceil(total / limit))
+  );
+  return {
+    data: listings,
+    pagination: {
+      page: Number(data?.pagination?.page ?? page),
+      limit: Number(data?.pagination?.limit ?? limit),
+      total,
+      totalPages,
+      hasNextPage:
+        data?.pagination?.hasNextPage ?? page < totalPages,
+      hasPrevPage: data?.pagination?.hasPrevPage ?? page > 1,
+    },
+  };
 }

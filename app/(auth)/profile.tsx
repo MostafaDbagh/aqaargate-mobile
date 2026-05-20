@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -12,6 +13,7 @@ import { PrimaryButton } from '@/components/forms/primary-button';
 import { TextField } from '@/components/forms/text-field';
 import { useToast } from '@/components/feedback/toast';
 import { getApiErrorMessage } from '@/lib/api';
+import { openLegal } from '@/lib/legal';
 import { changePasswordSchema, type ChangePasswordInput } from '@/lib/schemas';
 import { selectCurrentUser } from '@/store/selectors';
 import { useAppSelector } from '@/store/store';
@@ -24,7 +26,7 @@ type ProfileFormValues = {
 };
 
 export default function ProfileScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const toast = useToast();
   const user = useAppSelector(selectCurrentUser);
@@ -50,6 +52,27 @@ export default function ProfileScreen() {
         <Text className="text-brand-accent font-semibold">{showPasswordSection ? '−' : '+'}</Text>
       </Pressable>
       {showPasswordSection ? <ChangePasswordForm userId={user._id} /> : null}
+
+      <View className="h-px bg-gray-200 my-6" />
+
+      <Pressable
+        onPress={() => openLegal('privacy', i18n.language)}
+        className="flex-row items-center py-3 active:opacity-70">
+        <Ionicons name="shield-checkmark-outline" size={20} color="#f1913d" />
+        <Text className="flex-1 mx-3 text-brand text-base font-semibold">
+          {t('legal.privacyPolicy')}
+        </Text>
+        <Ionicons name="open-outline" size={16} color="#a8abae" />
+      </Pressable>
+      <Pressable
+        onPress={() => openLegal('terms', i18n.language)}
+        className="flex-row items-center py-3 active:opacity-70">
+        <Ionicons name="document-text-outline" size={20} color="#f1913d" />
+        <Text className="flex-1 mx-3 text-brand text-base font-semibold">
+          {t('legal.termsOfService')}
+        </Text>
+        <Ionicons name="open-outline" size={16} color="#a8abae" />
+      </Pressable>
 
       <View className="h-px bg-gray-200 my-6" />
 

@@ -3,29 +3,37 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Animated, Pressable, Text, TextInput, View } from 'react-native';
 
-import { FiltersSheet } from './filters-sheet';
-import { FilterIcon, SendArrowIcon, SparklesIcon, WarningIcon } from './icons/svg-icons';
+import type { SearchParams } from '@/lib/api';
 
-type Status = '' | 'For Sale' | 'For Rent';
+import { FiltersSheet } from './filters-sheet';
+import { FilterIcon, SendArrowIcon, SparklesIcon } from './icons/svg-icons';
+
+type Status = '' | 'sale' | 'rent';
 
 type Props = {
+  value?: SearchParams;
   onSearch: (next: { keyword: string; status: Status }) => void;
+  onApplyFilters?: (patch: Partial<SearchParams>) => void;
 };
 
-// Match web: rotate every 3s, 320ms opacity fade.
 const ROTATE_MS = 3000;
-const FADE_MS = 320;
+const FADE_MS = 260;
 
-export function Hero({ onSearch }: Props) {
+const QUICK_FILTERS: { key: Status; labelKey: string }[] = [
+  { key: '', labelKey: 'hero.forAll' },
+  { key: 'sale', labelKey: 'hero.forSale' },
+  { key: 'rent', labelKey: 'hero.forRent' },
+];
+
+export function Hero({ value, onSearch, onApplyFilters }: Props) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
   const [query, setQuery] = useState('');
-  const [status, setStatus] = useState<Status>('');
+  const status = (value?.status ?? '') as Status;
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [emptyWarn, setEmptyWarn] = useState(false);
+  const [focused, setFocused] = useState(false);
 
-  // Rotating AI-search placeholders (verbatim from web messages)
   const placeholders = (t('hero.aiSearchPlaceholders', { returnObjects: true }) as
     | string[]
     | string) ?? [];
@@ -34,7 +42,7 @@ export function Hero({ onSearch }: Props) {
   const placeholderOpacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (query.length > 0 || examples.length === 0) return;
+    if (query.length > 0 || focused || examples.length === 0) return;
     const id = setInterval(() => {
       Animated.timing(placeholderOpacity, {
         toValue: 0,
@@ -50,113 +58,154 @@ export function Hero({ onSearch }: Props) {
       });
     }, ROTATE_MS);
     return () => clearInterval(id);
-  }, [query, examples.length, placeholderOpacity]);
+  }, [query, focused, examples.length, placeholderOpacity]);
 
-  const submit = () => {
-    const k = query.trim();
-    if (!k && !status) {
-      setEmptyWarn(true);
-      return;
-    }
-    setEmptyWarn(false);
-    onSearch({ keyword: k, status });
-  };
-
-  const handleStatusChange = (next: Status) => {
-    setStatus(next);
+  const submit = () => onSearch({ keyword: query.trim(), status });
+  const pickStatus = (next: Status) => {
     onSearch({ keyword: query.trim(), status: next });
   };
 
-  const currentPlaceholder = examples[exampleIndex] ?? t('hero.searchPlaceholder');
-  const showRotating = query.length === 0 && examples.length > 0;
+  const currentExample = examples[exampleIndex] ?? '';
+  const showRotating = query.length === 0 && !focused && examples.length > 0;
 
   return (
-    <View className="bg-brand">
-      {/* Dark gradient overlay — matches web's rgba(0,0,0,0.55) on hero image */}
-      <LinearGradient
-        colors={['rgba(0,0,0,0.65)', 'rgba(0,0,0,0.85)']}
-        className="px-5 pt-6 pb-7">
-        <Text
-          className="text-white text-2xl font-extrabold leading-8"
-          style={{ textAlign: isRTL ? 'right' : 'left' }}>
-          {t('hero.title')}
-        </Text>
+    <View>
+      <View className="relative overflow-hidden">
+        <LinearGradient
+          colors={['#1f2124', '#2c2e33', '#1f2124']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ position: 'absolute', inset: 0 }}
+        />
+        {/* Decorative primary glow */}
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: -90,
+            right: -70,
+            width: 260,
+            height: 260,
+            borderRadius: 260,
+            backgroundColor: 'rgba(241, 145, 61, 0.22)',
+          }}
+        />
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: -120,
+            right: -40,
+            width: 180,
+            height: 180,
+            borderRadius: 180,
+            backgroundColor: 'rgba(241, 145, 61, 0.18)',
+          }}
+        />
 
-        {/* Search wrapper */}
-        <View className="mt-5">
-          {/* AI Search badge — gradient pill, sits above the input, matches web heroSearchBadge */}
+        <View className="px-5 pt-5 pb-8">
+          {/* Glass pill tag */}
           <View
-            className="self-start -mb-3 z-10 rounded-full overflow-hidden"
-            style={{ marginStart: 16 }}>
-            <LinearGradient
-              colors={['#fb923c', '#f97316', '#ea580c', '#c2410c']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="px-3 py-1.5 flex-row items-center gap-1.5">
-              <Text className="text-white text-xs font-bold">
-                {t('hero.subtitle')}
-              </Text>
-              <SparklesIcon size={14} color="#ffffff" />
-            </LinearGradient>
+            className="self-start flex-row items-center gap-1.5 bg-white/8 border border-white/15 rounded-full px-2.5 py-[3px]"
+            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            <View className="w-1.5 h-1.5 rounded-full bg-primary" />
+            <Text
+              className="text-white/85 text-[10px] font-semibold"
+              style={{ letterSpacing: 0.4 }}>
+              {t('hero.tag')}
+            </Text>
           </View>
 
-          {/* Chat input — white rounded form with bottom actions row */}
+          {/* Title */}
+          <Text
+            className="text-white text-[28px] font-extrabold leading-[34px] mt-3.5"
+            style={{ textAlign: isRTL ? 'right' : 'left', letterSpacing: -0.5 }}>
+            {t('hero.title')}
+          </Text>
+          <Text
+            className="text-white/65 text-[13px] mt-2 leading-[18px]"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('hero.tagline')}
+          </Text>
+
+          {/* AI Search label outside the box */}
           <View
-            className="bg-white rounded-3xl border border-gray-200 pt-7 px-4 pb-3"
+            className="mt-5 mb-1.5 flex-row items-center gap-1.5 self-start"
+            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            <SparklesIcon size={12} color="#f1913d" />
+            <Text
+              className="text-primary text-[10px] font-bold uppercase"
+              style={{ letterSpacing: 1.4 }}>
+              {t('hero.subtitle')}
+            </Text>
+          </View>
+
+          {/* Tall chat-style input */}
+          <View
+            className="bg-white"
             style={{
-              shadowColor: '#0f172a',
-              shadowOpacity: 0.15,
-              shadowRadius: 22,
-              shadowOffset: { width: 0, height: 12 },
-              elevation: 8,
+              borderRadius: 24,
+              shadowColor: '#000',
+              shadowOpacity: 0.28,
+              shadowRadius: 28,
+              shadowOffset: { width: 0, height: 14 },
+              elevation: 10,
+              height: 156,
+              paddingTop: 18,
+              paddingHorizontal: 18,
+              paddingBottom: 14,
             }}>
-            <View className="min-h-[88px]">
+            <View className="flex-1 justify-start">
               <TextInput
                 value={query}
-                onChangeText={(v) => {
-                  setQuery(v);
-                  if (emptyWarn && v.length > 0) setEmptyWarn(false);
-                }}
+                onChangeText={setQuery}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
                 onSubmitEditing={submit}
                 returnKeyType="search"
                 multiline
                 accessibilityLabel={t('hero.subtitle')}
                 placeholder={showRotating ? '' : t('hero.searchPlaceholder')}
-                placeholderTextColor="#9ca3af"
-                className="text-base text-gray-900 leading-6"
+                placeholderTextColor="#a8abae"
+                className="text-[16px] text-secondary leading-6"
                 style={{
                   textAlign: isRTL ? 'right' : 'left',
                   textAlignVertical: 'top',
-                  minHeight: 64,
+                  flex: 1,
                 }}
               />
               {showRotating ? (
                 <Animated.Text
                   pointerEvents="none"
                   numberOfLines={2}
-                  className="text-gray-400 text-base leading-6 absolute top-0 left-0 right-0"
+                  className="text-note text-[16px] leading-6 absolute"
                   style={{
                     opacity: placeholderOpacity,
+                    left: isRTL ? undefined : 0,
+                    right: isRTL ? 0 : undefined,
+                    top: 0,
                     textAlign: isRTL ? 'right' : 'left',
                   }}>
-                  {currentPlaceholder}
+                  {currentExample}
                 </Animated.Text>
               ) : null}
             </View>
 
-            {/* Actions row — Filters chip on the leading edge, Send on trailing */}
+            {/* Bottom actions row — Filters chip + Send button */}
             <View
-              className="flex-row items-center justify-between mt-3"
+              className="flex-row items-center justify-between mt-2"
               style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
               <Pressable
                 onPress={() => setFiltersOpen(true)}
                 accessibilityLabel={t('hero.filtersTooltip')}
-                className="flex-row items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white active:bg-slate-50"
+                className="flex-row items-center gap-2 px-3 py-2 rounded-xl border border-line bg-white active:bg-cream"
                 style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                <FilterIcon size={18} color="#334155" />
-                <Text className="text-slate-700 text-sm font-medium">{t('hero.filters')}</Text>
+                <FilterIcon size={16} color="#5c5e61" />
+                <Text className="text-secondary text-[13px] font-semibold">
+                  {t('hero.filters')}
+                </Text>
                 {status ? (
-                  <View className="w-2 h-2 rounded-full bg-primary ml-1" />
+                  <View className="w-1.5 h-1.5 rounded-full bg-primary ml-0.5" />
                 ) : null}
               </Pressable>
 
@@ -169,30 +218,47 @@ export function Hero({ onSearch }: Props) {
                   shadowOpacity: 0.2,
                   shadowRadius: 3,
                   shadowOffset: { width: 0, height: 1 },
+                  elevation: 2,
                 }}>
-                <SendArrowIcon
-                  size={18}
-                  color="#ffffff"
-                />
+                <View style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined}>
+                  <SendArrowIcon size={18} color="#ffffff" />
+                </View>
               </Pressable>
             </View>
           </View>
 
-          {emptyWarn ? (
-            <View
-              className="mt-3 flex-row items-center gap-2 bg-primary-50 border border-primary-200 rounded-xl px-3 py-2"
-              style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-              <WarningIcon size={16} color="#f2695c" />
-              <Text className="text-danger text-sm flex-1">{t('hero.emptyWarning')}</Text>
-            </View>
-          ) : null}
+          {/* Quick filter pills BELOW the input */}
+          <View
+            className="mt-3.5 flex-row items-center gap-2"
+            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            {QUICK_FILTERS.map((f) => {
+              const active = status === f.key;
+              return (
+                <Pressable
+                  key={f.key || 'all'}
+                  onPress={() => pickStatus(f.key)}
+                  className={`px-3.5 py-1.5 rounded-full border ${
+                    active
+                      ? 'bg-white border-white'
+                      : 'bg-white/8 border-white/15 active:bg-white/12'
+                  }`}>
+                  <Text
+                    className={`text-[12px] font-bold ${
+                      active ? 'text-secondary' : 'text-white/80'
+                    }`}>
+                    {t(f.labelKey)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
-      </LinearGradient>
+      </View>
 
       <FiltersSheet
         visible={filtersOpen}
-        value={status}
-        onSelect={handleStatusChange}
+        value={value ?? {}}
+        onApply={(next) => onApplyFilters?.(next)}
         onClose={() => setFiltersOpen(false)}
       />
     </View>

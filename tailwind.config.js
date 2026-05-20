@@ -43,6 +43,18 @@ module.exports = {
           accent: '#f1913d', // brand primary
         },
       },
+      fontFamily: {
+        // Latin (English) — Lexend, matches web's $font-main
+        lexend: ['Lexend_400Regular'],
+        'lexend-medium': ['Lexend_500Medium'],
+        'lexend-semibold': ['Lexend_600SemiBold'],
+        'lexend-bold': ['Lexend_700Bold'],
+        'lexend-extrabold': ['Lexend_800ExtraBold'],
+        // Arabic — Tajawal, matches web's $font-tajawal
+        tajawal: ['Tajawal_400Regular'],
+        'tajawal-medium': ['Tajawal_500Medium'],
+        'tajawal-bold': ['Tajawal_700Bold'],
+      },
     },
   },
   plugins: [],

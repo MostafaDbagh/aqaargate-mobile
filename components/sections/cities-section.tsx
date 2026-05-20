@@ -1,5 +1,5 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
@@ -8,7 +8,6 @@ import { resolveCityImageUrl } from '@/apis/city';
 
 import { SectionHeader } from './section-header';
 
-// Arabic city names — web translates via translateCity(); same idea here.
 const CITY_AR: Record<string, string> = {
   Damascus: 'دمشق',
   Latakia: 'اللاذقية',
@@ -38,11 +37,10 @@ export function CitiesSection({ activeCity, onSelect }: Props) {
   if (isError && cities.length === 0) return null;
 
   return (
-    <View className="bg-white py-8">
+    <View className="py-5 bg-white">
       <SectionHeader
         title={t('citiesSection.title')}
         subtitle={t('citiesSection.subtitle')}
-        align="center"
       />
 
       {isLoading ? (
@@ -55,19 +53,24 @@ export function CitiesSection({ activeCity, onSelect }: Props) {
             const url = resolveCityImageUrl(c.imageSrc);
             const label = isAr ? CITY_AR[c.city] ?? c.displayName : c.displayName;
             const active = activeCity === c.city;
+            const countLabel = `${c.count} ${
+              c.count === 1 ? t('common.property') : t('common.properties')
+            }`;
             return (
               <View key={c.city} className="w-1/2 p-1.5">
                 <Pressable
                   onPress={() => onSelect(active ? '' : c.city)}
                   accessibilityRole="button"
-                  className="rounded-2xl overflow-hidden bg-cream"
                   style={{
-                    height: 180,
-                    shadowColor: '#0f172a',
-                    shadowOpacity: 0.12,
-                    shadowRadius: 12,
+                    height: 220,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    backgroundColor: '#e8eaed',
+                    shadowColor: '#000',
+                    shadowOpacity: 0.1,
+                    shadowRadius: 15,
                     shadowOffset: { width: 0, height: 4 },
-                    elevation: 3,
+                    elevation: 4,
                   }}>
                   {url ? (
                     <Image
@@ -76,46 +79,70 @@ export function CitiesSection({ activeCity, onSelect }: Props) {
                       contentFit="cover"
                       transition={150}
                     />
-                  ) : (
-                    <View className="absolute inset-0 bg-line" />
-                  )}
-                  {/* Bottom dark gradient — matches web's cityOverlay */}
+                  ) : null}
+
+                  {/* Bottom gradient — matches web: 0 → 0.25 → 0.45 at 0.6 opacity */}
                   <LinearGradient
                     colors={[
                       'rgba(0,0,0,0)',
                       'rgba(0,0,0,0.25)',
-                      active ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.45)',
+                      'rgba(0,0,0,0.45)',
                     ]}
                     locations={[0, 0.7, 1]}
-                    style={{ position: 'absolute', inset: 0 }}
+                    style={{ position: 'absolute', inset: 0, opacity: 0.6 }}
                   />
 
-                  {/* Active border ring */}
+                  {/* Active ring */}
                   {active ? (
-                    <View className="absolute inset-0 border-2 border-primary rounded-2xl" />
+                    <View
+                      className="absolute inset-0 border-2 border-primary"
+                      style={{ borderRadius: 12 }}
+                    />
                   ) : null}
 
-                  <View className="absolute left-3 right-3 bottom-3">
+                  {/* Bottom content — city name + orange count pill */}
+                  <View className="absolute left-4 right-4 bottom-4">
                     <Text
                       numberOfLines={1}
-                      className="text-white text-base font-bold"
                       style={{
+                        color: '#ffffff',
+                        fontSize: 17,
+                        fontWeight: '700',
+                        lineHeight: 22,
+                        letterSpacing: -0.3,
                         textShadowColor: 'rgba(0,0,0,0.6)',
                         textShadowOffset: { width: 0, height: 1 },
-                        textShadowRadius: 4,
+                        textShadowRadius: 3,
+                        textAlign: isAr ? 'right' : 'left',
                       }}>
                       {label}
                     </Text>
-                    {/* Orange count pill — web uses 135deg #ff6b35 → #ff8c42 */}
-                    <View className="self-start mt-1 rounded-full overflow-hidden">
+                    {/* Orange gradient count pill — matches web: 135deg #ff6b35 → #ff8c42 */}
+                    <View
+                      style={{
+                        alignSelf: isAr ? 'flex-end' : 'flex-start',
+                        marginTop: 8,
+                        borderRadius: 25,
+                        overflow: 'hidden',
+                        shadowColor: '#ff6b35',
+                        shadowOpacity: 0.4,
+                        shadowRadius: 8,
+                        shadowOffset: { width: 0, height: 4 },
+                        elevation: 4,
+                      }}>
                       <LinearGradient
                         colors={['#ff6b35', '#ff8c42']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
-                        className="px-2.5 py-0.5">
-                        <Text className="text-white text-xs font-bold">
-                          {c.count}{' '}
-                          {c.count === 1 ? t('common.property') : t('common.properties')}
+                        style={{ paddingHorizontal: 14, paddingVertical: 5 }}>
+                        <Text
+                          style={{
+                            color: '#ffffff',
+                            fontSize: 12,
+                            fontWeight: '800',
+                            letterSpacing: 0.2,
+                          }}>
+                          {countLabel}
                         </Text>
                       </LinearGradient>
                     </View>

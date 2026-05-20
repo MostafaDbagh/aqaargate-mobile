@@ -1,12 +1,27 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  I18nManager,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 
 import { useCategories } from '@/apis/hooks';
 import { CategoryIcon } from '@/components/icons/category-icons';
 
 import { SectionHeader } from './section-header';
 
-// Arabic display names — web uses a hardcoded map for the same purpose.
+const ITEM_WIDTH = 130;
+const ITEM_GAP = 10;
+const STEP = ITEM_WIDTH + ITEM_GAP;
+const AUTOPLAY_DELAY_MS = 2500;
+const RESUME_AFTER_INTERACTION_MS = 5000;
+
 const PROPERTY_TYPE_AR: Record<string, string> = {
   Apartment: 'شقة',
   'Villa/Farms': 'فيلا/مزرعة',
@@ -29,66 +44,117 @@ export function CategoriesSection({ activeName, onSelect }: Props) {
   const isAr = i18n.language === 'ar';
   const { data: categories = [], isLoading, isError } = useCategories();
 
+  const scrollRef = useRef<ScrollView>(null);
+  const offsetRef = useRef(0);
+  const contentWidthRef = useRef(0);
+  const viewportWidthRef = useRef(0);
+  const pausedRef = useRef(false);
+  const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (isLoading || categories.length <= 1) return;
+
+    const tick = () => {
+      if (pausedRef.current) return;
+      const maxOffset = Math.max(0, contentWidthRef.current - viewportWidthRef.current);
+      if (maxOffset <= 0) return;
+
+      let next = offsetRef.current + STEP;
+      if (next > maxOffset) next = 0;
+      offsetRef.current = next;
+
+      // In RTL, React Native's ScrollView flips coordinates on iOS but not Android.
+      // I18nManager.isRTL reflects the layout direction we should account for.
+      const targetX = I18nManager.isRTL ? -next : next;
+      scrollRef.current?.scrollTo({ x: targetX, animated: true });
+    };
+
+    intervalRef.current = setInterval(tick, AUTOPLAY_DELAY_MS);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    };
+  }, [isLoading, categories.length]);
+
+  const pauseAutoplay = () => {
+    pausedRef.current = true;
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => {
+      pausedRef.current = false;
+    }, RESUME_AFTER_INTERACTION_MS);
+  };
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    offsetRef.current = Math.abs(e.nativeEvent.contentOffset.x);
+  };
+
   if (isError && categories.length === 0) return null;
 
   return (
-    <View className="bg-cream py-8">
+    <View className="py-5 bg-white">
       <SectionHeader
         title={t('categoriesSection.title')}
         subtitle={t('categoriesSection.subtitle')}
       />
 
       {isLoading ? (
-        <View className="h-[140px] items-center justify-center">
+        <View className="h-[100px] items-center justify-center">
           <ActivityIndicator color="#f1913d" />
         </View>
       ) : (
         <ScrollView
+          ref={scrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}>
+          contentContainerStyle={{ paddingHorizontal: 20, gap: ITEM_GAP }}
+          onLayout={(e) => {
+            viewportWidthRef.current = e.nativeEvent.layout.width;
+          }}
+          onContentSizeChange={(w) => {
+            contentWidthRef.current = w;
+          }}
+          onScrollBeginDrag={pauseAutoplay}
+          onMomentumScrollBegin={pauseAutoplay}
+          onScroll={handleScroll}
+          scrollEventThrottle={32}>
           {categories.map((c) => {
             const active = activeName === c.name;
             const label = isAr ? PROPERTY_TYPE_AR[c.name] ?? c.displayName : c.displayName;
+            const countText = `${c.count} ${
+              c.count === 1 ? t('common.property') : t('common.properties')
+            }`;
             return (
               <Pressable
                 key={c.slug}
-                onPress={() => onSelect(active ? '' : c.name)}
+                onPress={() => {
+                  pauseAutoplay();
+                  onSelect(active ? '' : c.name);
+                }}
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
-                className={`w-[140px] rounded-2xl border px-3 py-4 items-center ${
-                  active
-                    ? 'bg-primary border-primary'
-                    : 'bg-white border-line active:bg-primary-50'
+                className={`rounded-xl px-3 py-4 items-center bg-white ${
+                  active ? 'border-2 border-primary' : 'border border-line'
                 }`}
                 style={{
-                  shadowColor: '#f1913d',
-                  shadowOpacity: active ? 0.18 : 0.06,
-                  shadowRadius: 12,
-                  shadowOffset: { width: 0, height: 4 },
-                  elevation: active ? 4 : 1,
+                  width: ITEM_WIDTH,
+                  shadowColor: '#0f172a',
+                  shadowOpacity: 0.04,
+                  shadowRadius: 8,
+                  shadowOffset: { width: 0, height: 2 },
+                  elevation: 1,
                 }}>
-                <View
-                  className={`w-14 h-14 rounded-2xl items-center justify-center mb-2 ${
-                    active ? 'bg-white/20' : 'bg-primary-50'
-                  }`}>
-                  <CategoryIcon
-                    name={c.name}
-                    size={28}
-                    color={active ? '#ffffff' : '#f1913d'}
-                  />
+                <View className="w-14 h-14 rounded-2xl items-center justify-center mb-2">
+                  <CategoryIcon name={c.name} size={38} color="#f1913d" />
                 </View>
                 <Text
                   numberOfLines={1}
-                  className={`text-sm font-bold text-center ${
-                    active ? 'text-white' : 'text-secondary'
-                  }`}>
+                  className="text-[14px] font-bold text-center text-secondary"
+                  style={{ letterSpacing: -0.2 }}>
                   {label}
                 </Text>
-                <Text
-                  className={`text-xs mt-1 ${active ? 'text-white/80' : 'text-text'}`}>
-                  {c.count}{' '}
-                  {c.count === 1 ? t('common.property') : t('common.properties')}
+                <Text className="text-[11px] mt-0.5 font-medium text-note">
+                  {countText}
                 </Text>
               </Pressable>
             );

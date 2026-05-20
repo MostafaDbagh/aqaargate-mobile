@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,10 +18,12 @@ import { PropertyCard } from '@/components/property-card';
 import { CategoriesSection } from '@/components/sections/categories-section';
 import { CitiesSection } from '@/components/sections/cities-section';
 import { SectionHeader } from '@/components/sections/section-header';
+import { SocialMediaBar } from '@/components/sections/social-media-bar';
 import { searchListings, type Listing, type SearchParams } from '@/lib/api';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [params, setParams] = useState<SearchParams>({ limit: 21, sort: 'newest' });
 
   const {
@@ -37,9 +40,11 @@ export default function HomeScreen() {
   const updateFilter = (patch: Partial<SearchParams>) => {
     setParams((prev) => {
       const next: SearchParams = { limit: 21, sort: 'newest', ...prev, ...patch };
-      // Strip empty values so they don't get serialized as `?key=`
       (Object.keys(next) as (keyof SearchParams)[]).forEach((k) => {
-        if (next[k] === '' || next[k] === undefined) delete next[k];
+        const v = next[k];
+        if (v === '' || v === undefined || (Array.isArray(v) && v.length === 0)) {
+          delete next[k];
+        }
       });
       return next;
     });
@@ -50,16 +55,22 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-brand">
+    <View className="flex-1 bg-white">
+      <SafeAreaView edges={['top']} className="bg-brand">
+        <HomeHeader />
+      </SafeAreaView>
       <FlatList
         data={listings as Listing[]}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <PropertyCard listing={item} />}
-        contentContainerStyle={{ paddingBottom: 32, backgroundColor: '#ffffff' }}
+        contentContainerStyle={{ paddingBottom: 40, backgroundColor: '#ffffff' }}
         ListHeaderComponent={
-          <View>
-            <HomeHeader />
-            <Hero onSearch={handleHeroSearch} />
+          <View className="gap-6">
+            <Hero
+              value={params}
+              onSearch={handleHeroSearch}
+              onApplyFilters={updateFilter}
+            />
 
             <CategoriesSection
               activeName={params.propertyType}
@@ -67,11 +78,13 @@ export default function HomeScreen() {
             />
 
             <CitiesSection
-              activeCity={(params as SearchParams & { city?: string }).city}
-              onSelect={(city) => updateFilter({ city } as Partial<SearchParams>)}
+              onSelect={(city) => {
+                if (!city) return;
+                router.push({ pathname: '/(tabs)/property-list', params: { city } });
+              }}
             />
 
-            <View className="bg-white pt-8 pb-3">
+            <View className="pb-2">
               <SectionHeader
                 title={t('properties.title')}
                 subtitle={t('properties.subtitle')}
@@ -81,34 +94,39 @@ export default function HomeScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center bg-white">
+            <View className="py-16 items-center">
               <ActivityIndicator size="large" color="#f1913d" />
             </View>
           ) : isError ? (
-            <View className="py-16 items-center bg-white px-5">
+            <View className="py-16 items-center px-5">
               <Text className="text-text mb-3">{t('properties.error')}</Text>
               <Pressable
                 onPress={() => refetch()}
-                className="bg-primary px-5 py-2 rounded-full">
+                className="bg-primary px-5 py-2.5 rounded-full">
                 <Text className="text-white font-semibold">{t('properties.retry')}</Text>
               </Pressable>
             </View>
           ) : (
-            <View className="py-16 items-center bg-white">
+            <View className="py-16 items-center">
               <Text className="text-note">{t('properties.empty')}</Text>
             </View>
           )
         }
+        ListFooterComponent={<SocialMediaBar />}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} tintColor="#f1913d" />
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+            tintColor="#f1913d"
+          />
         }
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-5 bg-white">
+          <View {...rest} className="px-5">
             {children}
           </View>
         )}
       />
-    </SafeAreaView>
+    </View>
   );
 }

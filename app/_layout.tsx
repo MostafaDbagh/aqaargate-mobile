@@ -10,6 +10,7 @@ import { Provider as ReduxProvider } from 'react-redux';
 import 'react-native-reanimated';
 
 import { ToastProvider } from '@/components/feedback/toast';
+import { FontProvider } from '@/components/font-provider';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { setUnauthorizedHandler } from '@/lib/api';
 import { queryClient } from '@/lib/query-client';
@@ -40,18 +41,28 @@ export default function RootLayout() {
   return (
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
+        <FontProvider>
         <ToastProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
               <Stack.Screen
                 name="(auth)"
                 options={{ headerShown: false, presentation: 'modal' }}
               />
+              <Stack.Screen name="property/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="agent/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="projects/index" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="projects/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="faq" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="contact" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="interested-buyer" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="rental-service" options={{ headerShown: false, animation: 'slide_from_right' }} />
             </Stack>
             <StatusBar style="auto" />
           </ThemeProvider>
         </ToastProvider>
+        </FontProvider>
       </QueryClientProvider>
     </ReduxProvider>
   );
