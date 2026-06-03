@@ -44,16 +44,23 @@ module.exports = {
         },
       },
       fontFamily: {
-        // Latin (English) — Lexend, matches web's $font-main
-        lexend: ['Lexend_400Regular'],
-        'lexend-medium': ['Lexend_500Medium'],
-        'lexend-semibold': ['Lexend_600SemiBold'],
-        'lexend-bold': ['Lexend_700Bold'],
-        'lexend-extrabold': ['Lexend_800ExtraBold'],
-        // Arabic — Tajawal, matches web's $font-tajawal
-        tajawal: ['Tajawal_400Regular'],
-        'tajawal-medium': ['Tajawal_500Medium'],
-        'tajawal-bold': ['Tajawal_700Bold'],
+        // Headings / emphasis — Cairo (Arabic + Latin)
+        cairo: ['Cairo_600SemiBold'],
+        'cairo-bold': ['Cairo_700Bold'],
+        'cairo-extrabold': ['Cairo_800ExtraBold'],
+        // Body — IBM Plex Sans Arabic (Arabic + Latin)
+        plex: ['IBMPlexSansArabic_400Regular'],
+        'plex-medium': ['IBMPlexSansArabic_500Medium'],
+        // Back-compat aliases (old token names → new fonts) so any stray
+        // className keeps resolving after the Lexend/Tajawal → Cairo/Plex swap.
+        lexend: ['IBMPlexSansArabic_400Regular'],
+        'lexend-medium': ['IBMPlexSansArabic_500Medium'],
+        'lexend-semibold': ['Cairo_600SemiBold'],
+        'lexend-bold': ['Cairo_700Bold'],
+        'lexend-extrabold': ['Cairo_800ExtraBold'],
+        tajawal: ['IBMPlexSansArabic_400Regular'],
+        'tajawal-medium': ['IBMPlexSansArabic_500Medium'],
+        'tajawal-bold': ['Cairo_700Bold'],
       },
     },
   },

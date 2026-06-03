@@ -1,33 +1,33 @@
 /**
- * Font configuration — Lexend (Latin) for English, Tajawal (Arabic) for ar locale.
- * Matches the web app's $font-main / $font-tajawal SCSS variables.
+ * Font configuration — a modern two-family system:
+ *   • Cairo                → headings / emphasis (semibold and up)
+ *   • IBM Plex Sans Arabic → body text (regular & medium)
  *
- * Maps React Native `fontWeight` styles to the correct loaded Google Font.
- * Use `pickFont(weight, isAr)` in custom Text overrides or per-component styles.
+ * Both families ship Arabic AND Latin glyphs, so the correct script renders in
+ * either language automatically — we only pick the FAMILY by weight. Bold text
+ * (titles, prices, buttons) gets Cairo; body copy gets IBM Plex Sans Arabic.
+ *
+ * Use `pickFont(weight)` in custom Text overrides or per-component styles.
  */
 
 import {
-  Lexend_400Regular,
-  Lexend_500Medium,
-  Lexend_600SemiBold,
-  Lexend_700Bold,
-  Lexend_800ExtraBold,
-} from '@expo-google-fonts/lexend';
+  Cairo_600SemiBold,
+  Cairo_700Bold,
+  Cairo_800ExtraBold,
+} from '@expo-google-fonts/cairo';
 import {
-  Tajawal_400Regular,
-  Tajawal_500Medium,
-  Tajawal_700Bold,
-} from '@expo-google-fonts/tajawal';
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
+} from '@expo-google-fonts/ibm-plex-sans-arabic';
 
 export const fontMap = {
-  Lexend_400Regular,
-  Lexend_500Medium,
-  Lexend_600SemiBold,
-  Lexend_700Bold,
-  Lexend_800ExtraBold,
-  Tajawal_400Regular,
-  Tajawal_500Medium,
-  Tajawal_700Bold,
+  // Headings — Cairo
+  Cairo_600SemiBold,
+  Cairo_700Bold,
+  Cairo_800ExtraBold,
+  // Body — IBM Plex Sans Arabic
+  IBMPlexSansArabic_400Regular,
+  IBMPlexSansArabic_500Medium,
 };
 
 type WeightLike = string | number | undefined;
@@ -51,19 +51,16 @@ function normalizeWeight(w: WeightLike): number {
   return map[String(w).toLowerCase()] ?? 400;
 }
 
-/** Pick the right loaded font name based on weight + locale. */
-export function pickFont(weight: WeightLike, isAr: boolean): string {
+/**
+ * Pick the right family + weight. Emphasis (>= 600) → Cairo heading family;
+ * everything lighter → IBM Plex Sans Arabic body family. The second arg is
+ * kept for call-site compatibility but unused — both fonts cover Arabic + Latin.
+ */
+export function pickFont(weight: WeightLike, _isAr?: boolean): string {
   const w = normalizeWeight(weight);
-  if (isAr) {
-    // Tajawal has 3 weights — bucket aggressively.
-    if (w >= 700) return 'Tajawal_700Bold';
-    if (w >= 500) return 'Tajawal_500Medium';
-    return 'Tajawal_400Regular';
-  }
-  // Lexend has 5 weights loaded.
-  if (w >= 800) return 'Lexend_800ExtraBold';
-  if (w >= 700) return 'Lexend_700Bold';
-  if (w >= 600) return 'Lexend_600SemiBold';
-  if (w >= 500) return 'Lexend_500Medium';
-  return 'Lexend_400Regular';
+  if (w >= 800) return 'Cairo_800ExtraBold';
+  if (w >= 700) return 'Cairo_700Bold';
+  if (w >= 600) return 'Cairo_600SemiBold';
+  if (w >= 500) return 'IBMPlexSansArabic_500Medium';
+  return 'IBMPlexSansArabic_400Regular';
 }

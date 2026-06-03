@@ -130,15 +130,18 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
   };
 
   // ---- Shared pieces ----
-  // Mirrors the web PropertyCard: ONE status tag — "For Sale" (green) or
-  // "For Rent" (blue) — with a crown appended for VIP, or a star for Featured.
+  // ONE status tag — "For Sale" (green) / "For Rent" (blue) — with a single
+  // trailing icon: 🏖️ for holiday homes, else crown (VIP) or star (Featured).
+  type BadgeIcon = 'crown' | 'star' | 'holiday' | null;
   const cornerBadge = (() => {
-    if (badge === 'roi') return { label: 'ROI', bg: '#f1913d', icon: null as 'crown' | 'star' | null };
-    const icon: 'crown' | 'star' | null = listing.isVip
-      ? 'crown'
-      : listing.isFeatured || badge === 'featured'
-        ? 'star'
-        : null;
+    if (badge === 'roi') return { label: 'ROI', bg: '#f1913d', icon: null as BadgeIcon };
+    const icon: BadgeIcon = isHolidayHome
+      ? 'holiday'
+      : listing.isVip
+        ? 'crown'
+        : listing.isFeatured || badge === 'featured'
+          ? 'star'
+          : null;
     if (isRent) return { label: statusLabel as string, bg: '#3b82f6', icon };
     if (isSale) return { label: statusLabel as string, bg: '#10b981', icon };
     if (listing.status) return { label: statusLabel as string, bg: '#6b7280', icon };
@@ -181,6 +184,8 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
           <CrownIcon size={small ? 13 : 15} color="#ffffff" />
         ) : cornerBadge.icon === 'star' ? (
           <StarIcon size={small ? 11 : 13} color="#ffffff" />
+        ) : cornerBadge.icon === 'holiday' ? (
+          <Text style={{ fontSize: small ? 11 : 13 }}>🏖️</Text>
         ) : null}
       </View>
     ) : null;
@@ -326,17 +331,6 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
         <View className="absolute top-3 right-3">
           <HeartButton size={36} />
         </View>
-
-        {/* Holiday Home badge (bottom-left) */}
-        {isHolidayHome ? (
-          <View
-            className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg"
-            style={{ backgroundColor: 'rgba(241,145,61,0.95)' }}>
-            <Text className="text-white text-[11px] font-bold tracking-tight">
-              🏖️ {localizePropertyType('Holiday Home', i18n.language)}
-            </Text>
-          </View>
-        ) : null}
 
         {/* Occupied badge (bottom-right) */}
         {isOccupied ? (

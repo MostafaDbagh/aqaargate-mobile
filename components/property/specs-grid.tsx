@@ -1,61 +1,95 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
+import * as Haptics from 'expo-haptics';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View, type ViewStyle } from 'react-native';
 
+import { useToast } from '@/components/feedback/toast';
 import { AreaIcon, BathIcon, BedIcon } from '@/components/icons/svg-icons';
 import { localizeListingStatus } from '@/constants/listing-status';
 import { localizePropertyType } from '@/constants/property-types';
 import { getSizeUnitLabel } from '@/constants/size-units';
 import type { ExtendedListing } from '@/apis/listing';
 
+/** Soft, low-contrast lift shared by the spec cards. */
+const softShadow: ViewStyle = {
+  shadowColor: '#000',
+  shadowOpacity: 0.05,
+  shadowRadius: 10,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 2,
+};
+
 export function QuickSpecs({ listing }: { listing: ExtendedListing }) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const isLand = listing.propertyType === 'Land';
+
+  const cells: { icon: React.ReactNode; value: string; label: string }[] = [];
+  if (!isLand && listing.bedrooms != null && Number(listing.bedrooms) > 0) {
+    cells.push({
+      icon: <BedIcon size={20} color="#f1913d" />,
+      value: String(listing.bedrooms),
+      label: t('propertyDetail.bedrooms'),
+    });
+  }
+  if (listing.bathrooms != null && Number(listing.bathrooms) > 0) {
+    cells.push({
+      icon: <BathIcon size={20} color="#f1913d" />,
+      value: String(listing.bathrooms),
+      label: t('propertyDetail.bathrooms'),
+    });
+  }
+  cells.push({
+    icon: <AreaIcon size={20} color="#f1913d" />,
+    value: `${listing.size ?? 0}`,
+    label: getSizeUnitLabel(listing.sizeUnit, isAr),
+  });
+
   return (
-    <View className="mx-5 mt-4 flex-row items-center justify-around bg-cream rounded-xl py-3 px-2">
-      {!isLand && listing.bedrooms != null && Number(listing.bedrooms) > 0 ? (
-        <SpecCell icon={<BedIcon size={18} color="#f1913d" />} value={String(listing.bedrooms)} label={t('propertyDetail.bedrooms')} />
-      ) : null}
-      {listing.bathrooms != null && Number(listing.bathrooms) > 0 ? (
-        <SpecCell icon={<BathIcon size={18} color="#f1913d" />} value={String(listing.bathrooms)} label={t('propertyDetail.bathrooms')} />
-      ) : null}
-      <SpecCell
-        icon={<AreaIcon size={18} color="#f1913d" />}
-        value={`${listing.size ?? 0}`}
-        label={getSizeUnitLabel(listing.sizeUnit, isAr)}
-      />
+    <View
+      className="mx-5 mt-4 flex-row"
+      style={{ gap: 10, flexDirection: isAr ? 'row-reverse' : 'row' }}>
+      {cells.map((c, i) => (
+        <SpecCell key={i} icon={c.icon} value={c.value} label={c.label} />
+      ))}
     </View>
   );
 }
 
 function SpecCell({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <View className="items-center flex-1">
-      <View className="w-9 h-9 rounded-lg bg-white items-center justify-center mb-1">
+    <View
+      className="flex-1 items-center bg-white border border-line rounded-2xl py-4"
+      style={softShadow}>
+      <View
+        className="w-11 h-11 rounded-full items-center justify-center mb-2"
+        style={{ backgroundColor: '#fff3e6' }}>
         {icon}
       </View>
-      <Text
-        className="text-secondary text-[15px] font-extrabold"
-        style={{ letterSpacing: -0.3 }}>
+      <Text className="text-secondary text-[18px] font-extrabold" style={{ letterSpacing: -0.3 }}>
         {value}
       </Text>
-      <Text
-        className="text-note text-[10px] font-bold uppercase mt-0.5"
-        style={{ letterSpacing: 0.6 }}>
-        {label}
-      </Text>
+      <Text className="text-note text-[11px] font-semibold mt-0.5">{label}</Text>
     </View>
   );
 }
 
 export function DetailsGrid({ listing }: { listing: ExtendedListing }) {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
   const isAr = i18n.language === 'ar';
   const yes = isAr ? 'نعم' : 'Yes';
   const no = isAr ? 'لا' : 'No';
-  const rows: { label: string; value: string }[] = [];
-  if (listing.propertyId) rows.push({ label: t('propertyDetail.id'), value: listing.propertyId });
+
+  const copyId = async (value: string) => {
+    await Clipboard.setStringAsync(value);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    toast.success(t('propertyDetail.copied'));
+  };
+
+  const rows: { label: string; value: string; copyable?: boolean }[] = [];
+  if (listing.propertyId) rows.push({ label: t('propertyDetail.id'), value: listing.propertyId, copyable: true });
   if (listing.propertyType)
     rows.push({ label: t('propertyDetail.type'), value: localizePropertyType(listing.propertyType, i18n.language) ?? listing.propertyType });
   if (listing.status)
@@ -74,17 +108,52 @@ export function DetailsGrid({ listing }: { listing: ExtendedListing }) {
   return (
     <View className="px-5 mt-6">
       <SectionTitle title={t('propertyDetail.propertyDetails')} />
-      <View className="bg-white border border-line rounded-xl overflow-hidden">
-        {rows.map((r, i) => (
-          <View
-            key={r.label}
-            className={`flex-row items-center justify-between px-3.5 py-2.5 ${
-              i !== rows.length - 1 ? 'border-b border-line' : ''
-            }`}>
-            <Text className="text-text text-[13px]">{r.label}</Text>
-            <Text className="text-secondary text-[13px] font-semibold">{r.value}</Text>
-          </View>
-        ))}
+      <View
+        className="flex-row flex-wrap"
+        style={{ justifyContent: 'space-between', rowGap: 10, flexDirection: isAr ? 'row-reverse' : 'row' }}>
+        {rows.map((r) =>
+          r.copyable ? (
+            <Pressable
+              key={r.label}
+              onPress={() => copyId(r.value)}
+              accessibilityRole="button"
+              accessibilityLabel={`${r.label}: ${r.value}`}
+              className="bg-white border border-line rounded-2xl px-4 py-3 active:opacity-70"
+              style={[softShadow, { width: '48%' }]}>
+              <View
+                className="flex-row items-center justify-between"
+                style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
+                <Text className="text-note text-[12px] font-medium">{r.label}</Text>
+                <View
+                  className="w-6 h-6 rounded-full items-center justify-center"
+                  style={{ backgroundColor: '#fff3e6' }}>
+                  <Ionicons name="copy-outline" size={13} color="#f1913d" />
+                </View>
+              </View>
+              <Text
+                className="text-secondary text-[15px] font-bold mt-1"
+                style={{ textAlign: isAr ? 'right' : 'left' }}>
+                {r.value}
+              </Text>
+            </Pressable>
+          ) : (
+            <View
+              key={r.label}
+              className="bg-white border border-line rounded-2xl px-4 py-3"
+              style={[softShadow, { width: '48%' }]}>
+              <Text
+                className="text-note text-[12px] font-medium"
+                style={{ textAlign: isAr ? 'right' : 'left' }}>
+                {r.label}
+              </Text>
+              <Text
+                className="text-secondary text-[15px] font-bold mt-1"
+                style={{ textAlign: isAr ? 'right' : 'left' }}>
+                {r.value}
+              </Text>
+            </View>
+          )
+        )}
       </View>
     </View>
   );

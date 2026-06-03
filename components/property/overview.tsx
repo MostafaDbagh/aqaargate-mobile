@@ -65,7 +65,6 @@ export function Overview({ listing }: { listing: ExtendedListing }) {
   const statusLabel = isRent ? t('hero.forRent') : isSale ? t('hero.forSale') : listing.status;
   const city = localizeCity(listing.city ?? listing.state ?? '', i18n.language) || '';
   const neighborhood = (isAr && listing.neighborhood_ar) || listing.neighborhood || '';
-  const address = (isAr && listing.address_ar) || listing.address || '';
   const fullLocation = [neighborhood, city, listing.country].filter(Boolean).join(' · ');
   const rentPeriodKey = normalizeRentType(listing.rentTypeOriginal || listing.rentType);
   const rentSuffix = isRent
@@ -75,74 +74,109 @@ export function Overview({ listing }: { listing: ExtendedListing }) {
   const priceCode = (listing.currency || 'USD').toUpperCase();
   const keywordPills = parseKeywords(listing.propertyKeyword, isAr);
 
+  const hasTags = !!(listing.status || listing.isVip || listing.isFeatured || keywordPills.length > 0);
+
   return (
     <View className="px-5 pt-4">
-      {/* Status + VIP/Featured badges row */}
-      <View className="flex-row items-center gap-1.5 mb-2.5">
-        {listing.status ? (
-          <View
-            className="flex-row items-center gap-1 px-2.5 py-1 rounded-lg"
-            style={{ backgroundColor: isRent ? '#3b82f6' : isSale ? '#10b981' : '#6b7280' }}>
-            <Text
-              className="text-white text-[11px] font-bold uppercase"
-              style={{ letterSpacing: 0.4 }}>
-              {statusLabel}
+      {/* Price ──── property type on one row */}
+      <View
+        className="flex-row items-center justify-between"
+        style={{ flexDirection: isAr ? 'row-reverse' : 'row', gap: 10 }}>
+        {/* Price */}
+        <View
+          className="flex-row items-center"
+          style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
+          {listing.propertyPrice == null ? (
+            <Text className="text-secondary text-[26px] font-extrabold" style={{ letterSpacing: -0.6 }}>
+              N/A
             </Text>
-          </View>
-        ) : null}
-        {listing.isVip ? (
-          <View
-            className="flex-row items-center gap-1 px-2.5 py-1 rounded-lg"
-            style={{ backgroundColor: '#c79e34' }}>
-            <CrownIcon size={12} color="#ffffff" />
-            <Text
-              className="text-white text-[11px] font-bold uppercase"
-              style={{ letterSpacing: 0.4 }}>
-              VIP
-            </Text>
-          </View>
-        ) : listing.isFeatured ? (
-          <View
-            className="flex-row items-center gap-1 px-2.5 py-1 rounded-lg"
-            style={{ backgroundColor: '#7695ff' }}>
-            <StarIcon size={10} color="#ffffff" />
-            <Text
-              className="text-white text-[11px] font-bold uppercase"
-              style={{ letterSpacing: 0.4 }}>
-              {isAr ? 'مميز' : 'Featured'}
-            </Text>
-          </View>
-        ) : null}
+          ) : (
+            <>
+              <Text
+                className="text-secondary text-[26px] font-extrabold"
+                style={{ letterSpacing: -0.6 }}>
+                {getCurrencySymbol(priceCode)}
+              </Text>
+              <Text
+                className="text-secondary text-[26px] font-extrabold ml-1"
+                style={{ letterSpacing: -0.6 }}>
+                {Number(listing.propertyPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+              </Text>
+            </>
+          )}
+          {rentSuffix ? (
+            <Text className="text-text text-[13px] font-medium ml-1">{rentSuffix}</Text>
+          ) : null}
+        </View>
+
+        {/* Property type */}
+        <Text
+          className="text-primary text-[18px] font-extrabold"
+          numberOfLines={1}
+          style={{ textAlign: isAr ? 'left' : 'right', letterSpacing: -0.3, flexShrink: 1 }}>
+          {(keywordPills.length > 0 ? localizedType : listing.propertyKeyword) ??
+            localizedType ??
+            'Property'}
+        </Text>
       </View>
 
-      {/* Price (Bayut leads with price, prominent) */}
-      <View className="flex-row items-center">
-        {listing.propertyPrice == null ? (
-          <Text className="text-secondary text-[26px] font-extrabold" style={{ letterSpacing: -0.6 }}>
-            N/A
+      {/* Location — pin with the city/location line beside it */}
+      {fullLocation ? (
+        <View
+          className="flex-row items-center gap-1.5 mt-3"
+          style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
+          <LocationIcon size={16} color="#5c5e61" />
+          <Text
+            className="text-text text-[15px] flex-1"
+            numberOfLines={2}
+            style={{ textAlign: isAr ? 'right' : 'left' }}>
+            {fullLocation}
           </Text>
-        ) : (
-          <>
-            <Text
-              className="text-secondary text-[26px] font-extrabold"
-              style={{ letterSpacing: -0.6 }}>
-              {getCurrencySymbol(priceCode)}
-            </Text>
-            <Text
-              className="text-secondary text-[26px] font-extrabold ml-1"
-              style={{ letterSpacing: -0.6 }}>
-              {Number(listing.propertyPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}
-            </Text>
-          </>
-        )}
-        {rentSuffix ? (
-          <Text className="text-text text-[13px] font-medium ml-1">{rentSuffix}</Text>
-        ) : null}
-      </View>
+        </View>
+      ) : null}
 
-      {/* Keyword pills (Spacious, Well-ventilated, Bright, …) */}
-      {keywordPills.length > 0 ? (
-        <View className="flex-row flex-wrap gap-1.5 mt-2.5">
+      {/* Tags row (bottom) — status (For Sale / VIP / Featured) + keyword pills */}
+      {hasTags ? (
+        <View
+          className="flex-row flex-wrap items-center mt-4"
+          style={{ flexDirection: isAr ? 'row-reverse' : 'row', gap: 8, rowGap: 8 }}>
+          {listing.status ? (
+            <View
+              className="flex-row items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{
+                backgroundColor: isRent ? '#3b82f6' : isSale ? '#10b981' : '#6b7280',
+                flexDirection: isAr ? 'row-reverse' : 'row',
+              }}>
+              <Text
+                className="text-white text-[11px] font-bold uppercase"
+                style={{ letterSpacing: 0.4 }}>
+                {statusLabel}
+              </Text>
+            </View>
+          ) : null}
+          {listing.isVip ? (
+            <View
+              className="flex-row items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{ backgroundColor: '#c79e34', flexDirection: isAr ? 'row-reverse' : 'row' }}>
+              <CrownIcon size={12} color="#ffffff" />
+              <Text
+                className="text-white text-[11px] font-bold uppercase"
+                style={{ letterSpacing: 0.4 }}>
+                VIP
+              </Text>
+            </View>
+          ) : listing.isFeatured ? (
+            <View
+              className="flex-row items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{ backgroundColor: '#7695ff', flexDirection: isAr ? 'row-reverse' : 'row' }}>
+              <StarIcon size={10} color="#ffffff" />
+              <Text
+                className="text-white text-[11px] font-bold uppercase"
+                style={{ letterSpacing: 0.4 }}>
+                {isAr ? 'مميز' : 'Featured'}
+              </Text>
+            </View>
+          ) : null}
           {keywordPills.map((kw, i) => (
             <View
               key={`${kw}-${i}`}
@@ -154,29 +188,6 @@ export function Overview({ listing }: { listing: ExtendedListing }) {
             </View>
           ))}
         </View>
-      ) : null}
-
-      {/* Title */}
-      <Text
-        className="text-secondary text-[18px] font-bold leading-[24px] mt-2"
-        style={{ letterSpacing: -0.3 }}>
-        {(keywordPills.length > 0 ? localizedType : listing.propertyKeyword) ??
-          localizedType ??
-          'Property'}
-      </Text>
-
-      {/* Address */}
-      {address ? (
-        <View className="flex-row items-center gap-1.5 mt-1.5">
-          <LocationIcon size={16} color="#5c5e61" />
-          <Text className="text-text text-[15px] flex-1" numberOfLines={2}>
-            {address}
-          </Text>
-        </View>
-      ) : null}
-
-      {fullLocation ? (
-        <Text className="text-note text-[14px] mt-1 font-medium">{fullLocation}</Text>
       ) : null}
     </View>
   );

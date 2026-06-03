@@ -1,17 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, Text, View } from 'react-native';
 
 import type { ExtendedListing } from '@/apis/listing';
 
+import { MessageAgentModal } from './message-agent-modal';
 import { SectionTitle } from './specs-grid';
 
 export function AgentCard({ listing }: { listing: ExtendedListing }) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
+  const rowDir = isAr ? 'row-reverse' : 'row';
+  const [messageOpen, setMessageOpen] = useState(false);
 
-  const name = (isAr && listing.agentName_ar) || listing.agentName || 'Agent';
-  const phone = listing.agentNumber;
+  const agentObj =
+    typeof listing.agentId === 'object' && listing.agentId ? listing.agentId : null;
+
+  const name =
+    (isAr && listing.agentName_ar) ||
+    listing.agentName ||
+    [agentObj?.firstName, agentObj?.lastName].filter(Boolean).join(' ') ||
+    'Agent';
+  const avatar = agentObj?.avatar || undefined;
+  const verified = !!agentObj?.isTrueAgent;
   const email = listing.agentEmail;
   const whatsapp = listing.agentWhatsapp;
   const initials = name
@@ -25,89 +39,144 @@ export function AgentCard({ listing }: { listing: ExtendedListing }) {
     <View className="px-5 mt-6">
       <SectionTitle title={t('propertyDetail.contactAgent')} />
       <View
-        className="bg-white border border-line rounded-xl p-3.5"
+        className="bg-cream rounded-3xl p-3"
         style={{
-          shadowColor: '#000',
-          shadowOpacity: 0.04,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 2 },
-          elevation: 1,
+          borderWidth: 1,
+          borderColor: 'rgba(44, 46, 51, 0.05)',
+          shadowColor: '#2c2e33',
+          shadowOpacity: 0.08,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 3,
         }}>
-        <View className="flex-row items-center gap-2.5">
-          <View className="w-12 h-12 rounded-full bg-primary items-center justify-center">
-            <Text className="text-white text-[16px] font-extrabold">{initials || 'A'}</Text>
-          </View>
+        <View className="items-center gap-3" style={{ flexDirection: rowDir }}>
+          {/* Avatar — photo if available, else gradient initials */}
+          {avatar ? (
+            <Image
+              source={{ uri: avatar }}
+              style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: '#fdefe2' }}
+              contentFit="cover"
+              transition={150}
+            />
+          ) : (
+            <LinearGradient
+              colors={['#f6a85c', '#ed8a2e']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                width: 54,
+                height: 54,
+                borderRadius: 27,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text className="text-white text-[17px] font-extrabold">{initials || 'A'}</Text>
+            </LinearGradient>
+          )}
+
+          {/* Name + verified / role */}
           <View className="flex-1">
             <Text
               className="text-secondary text-[15px] font-bold"
-              style={{ letterSpacing: -0.2 }}>
+              numberOfLines={1}
+              style={{ letterSpacing: -0.3, textAlign: isAr ? 'right' : 'left' }}>
               {name}
             </Text>
-            <Text
-              className="text-note text-[11px] font-bold uppercase mt-0.5"
-              style={{ letterSpacing: 0.5 }}>
-              {t('propertyDetail.propertyAgent')}
-            </Text>
+            <View
+              className="items-center gap-1 mt-0.5"
+              style={{ flexDirection: rowDir }}>
+              {verified ? (
+                <>
+                  <Ionicons name="checkmark-circle" size={14} color="#06a788" />
+                  <Text className="text-[12px] font-semibold" style={{ color: '#06a788' }}>
+                    {t('agentsScreen.verified')}
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  className="text-note text-[11px] font-bold uppercase"
+                  style={{ letterSpacing: 0.5 }}>
+                  {t('propertyDetail.propertyAgent')}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          {/* Round action buttons: contact (message) · email · whatsapp */}
+          <View className="items-center gap-2" style={{ flexDirection: rowDir }}>
+            <RoundAction
+              icon="chatbubble-ellipses"
+              color="#f1913d"
+              accessibilityLabel={t('propertyDetail.contactAgent')}
+              onPress={() => setMessageOpen(true)}
+            />
+            {email ? (
+              <RoundAction
+                icon="mail"
+                color="#7695ff"
+                accessibilityLabel={t('propertyDetail.email')}
+                onPress={() => Linking.openURL(`mailto:${email}`)}
+              />
+            ) : null}
+            {whatsapp ? (
+              <RoundAction
+                icon="logo-whatsapp"
+                color="#25D366"
+                accessibilityLabel="WhatsApp"
+                onPress={() =>
+                  Linking.openURL(
+                    `https://wa.me/${whatsapp.replace(/[^\d+]/g, '').replace('+', '')}`
+                  )
+                }
+              />
+            ) : null}
           </View>
         </View>
-
-        <View className="mt-3 gap-1.5">
-          {phone ? (
-            <ContactRow
-              icon="call-outline"
-              label={phone}
-              onPress={() => Linking.openURL(`tel:${phone}`)}
-            />
-          ) : null}
-          {email ? (
-            <ContactRow
-              icon="mail-outline"
-              label={email}
-              onPress={() => Linking.openURL(`mailto:${email}`)}
-            />
-          ) : null}
-          {whatsapp ? (
-            <ContactRow
-              icon="logo-whatsapp"
-              label={whatsapp}
-              tint="#25D366"
-              onPress={() =>
-                Linking.openURL(
-                  `https://wa.me/${whatsapp.replace(/[^\d+]/g, '').replace('+', '')}`
-                )
-              }
-            />
-          ) : null}
-        </View>
       </View>
+
+      <MessageAgentModal
+        visible={messageOpen}
+        onClose={() => setMessageOpen(false)}
+        listing={listing}
+      />
     </View>
   );
 }
 
-function ContactRow({
+function RoundAction({
   icon,
-  label,
-  tint = '#f1913d',
+  color,
   onPress,
+  accessibilityLabel,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
-  label: string;
-  tint?: string;
+  color: string;
   onPress: () => void;
+  accessibilityLabel?: string;
 }) {
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center gap-2.5 bg-cream rounded-lg px-2.5 py-2.5 active:bg-primary-50">
+      hitSlop={6}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      className="active:opacity-80">
       <View
-        className="w-8 h-8 rounded-md items-center justify-center"
-        style={{ backgroundColor: `${tint}1A` }}>
-        <Ionicons name={icon} size={16} color={tint} />
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: color,
+          shadowColor: color,
+          shadowOpacity: 0.35,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: 3 },
+          elevation: 3,
+        }}>
+        <Ionicons name={icon} size={20} color="#ffffff" />
       </View>
-      <Text className="flex-1 text-secondary text-[12px] font-semibold" numberOfLines={1}>
-        {label}
-      </Text>
-      <Ionicons name="chevron-forward" size={14} color="#a8abae" />
     </Pressable>
   );
 }

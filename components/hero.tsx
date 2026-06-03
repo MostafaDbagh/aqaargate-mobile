@@ -1,7 +1,8 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Animated, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
+import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
 
 import type { SearchParams } from '@/lib/api';
 
@@ -16,9 +17,6 @@ type Props = {
   onApplyFilters?: (patch: Partial<SearchParams>) => void;
 };
 
-const ROTATE_MS = 3000;
-const FADE_MS = 260;
-
 export function Hero({ value, onSearch, onApplyFilters }: Props) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -26,141 +24,98 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
   const [query, setQuery] = useState('');
   const status = (value?.status ?? '') as Status;
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [focused, setFocused] = useState(false);
 
-  const placeholders = (t('hero.aiSearchPlaceholders', { returnObjects: true }) as
-    | string[]
-    | string) ?? [];
-  const examples = Array.isArray(placeholders) ? placeholders : [];
-  const [exampleIndex, setExampleIndex] = useState(0);
-  const placeholderOpacity = useRef(new Animated.Value(1)).current;
+  const rawChips = t('hero.aiChips', { returnObjects: true }) as string[] | string;
+  const chips = Array.isArray(rawChips) ? rawChips : [];
 
-  useEffect(() => {
-    if (query.length > 0 || focused || examples.length === 0) return;
-    const id = setInterval(() => {
-      Animated.timing(placeholderOpacity, {
-        toValue: 0,
-        duration: FADE_MS,
-        useNativeDriver: true,
-      }).start(() => {
-        setExampleIndex((i) => (i + 1) % examples.length);
-        Animated.timing(placeholderOpacity, {
-          toValue: 1,
-          duration: FADE_MS,
-          useNativeDriver: true,
-        }).start();
-      });
-    }, ROTATE_MS);
-    return () => clearInterval(id);
-  }, [query, focused, examples.length, placeholderOpacity]);
-
-  const submit = () => onSearch({ keyword: query.trim(), status });
-
-  const currentExample = examples[exampleIndex] ?? '';
-  const showRotating = query.length === 0 && !focused && examples.length > 0;
+  const search = (keyword: string) => onSearch({ keyword: keyword.trim(), status });
+  const submit = () => search(query);
+  const onChip = (c: string) => {
+    setQuery(c);
+    search(c);
+  };
 
   return (
     <View>
-      <View className="relative overflow-hidden">
-        <LinearGradient
-          colors={['#1f2124', '#2c2e33', '#1f2124']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ position: 'absolute', inset: 0 }}
-        />
-        {/* Decorative primary glow */}
+      <View className="relative">
+        {/* Property location-pin watermark (behind the text) */}
         <View
           pointerEvents="none"
-          style={{
-            position: 'absolute',
-            top: -90,
-            right: -70,
-            width: 260,
-            height: 260,
-            borderRadius: 260,
-            backgroundColor: 'rgba(241, 145, 61, 0.22)',
-          }}
-        />
-        <View
-          pointerEvents="none"
-          style={{
-            position: 'absolute',
-            top: -120,
-            right: -40,
-            width: 180,
-            height: 180,
-            borderRadius: 180,
-            backgroundColor: 'rgba(241, 145, 61, 0.18)',
-          }}
-        />
+          style={[
+            { position: 'absolute', top: 4, opacity: 0.18 },
+            isRTL ? { left: -8 } : { right: -8 },
+          ]}>
+          <HomesWatermark size={150} color="#f1913d" />
+        </View>
 
         <View className="px-5 pt-5 pb-8">
           {/* Title */}
           <Text
-            className="text-white text-[28px] font-extrabold leading-[34px]"
-            style={{ textAlign: isRTL ? 'right' : 'left', letterSpacing: -0.5 }}>
+            className="text-secondary text-[32px] font-extrabold leading-[40px]"
+            style={{
+              width: '60%',
+              marginTop: 32,
+              alignSelf: isRTL ? 'flex-end' : 'flex-start',
+              textAlign: isRTL ? 'right' : 'left',
+              letterSpacing: -0.5,
+            }}>
             {t('hero.title')}
           </Text>
-          <Text
-            className="text-white/65 text-[13px] mt-2 leading-[18px]"
-            style={{ textAlign: isRTL ? 'right' : 'left' }}>
-            {t('hero.tagline')}
-          </Text>
 
-          {/* Tall chat-style input */}
+          {/* AI prompt card — "Ask AI anything…" with short suggestion chips */}
           <View
-            className="bg-white mt-5"
+            className="mt-5 border"
             style={{
               borderRadius: 24,
+              backgroundColor: '#fff7f0',
+              borderColor: '#f3e2d2',
               shadowColor: '#000',
-              shadowOpacity: 0.28,
-              shadowRadius: 28,
-              shadowOffset: { width: 0, height: 14 },
-              elevation: 10,
-              height: 156,
-              paddingTop: 18,
-              paddingHorizontal: 18,
+              shadowOpacity: 0.12,
+              shadowRadius: 22,
+              shadowOffset: { width: 0, height: 12 },
+              elevation: 9,
+              paddingTop: 16,
+              paddingHorizontal: 16,
               paddingBottom: 14,
             }}>
-            <View className="flex-1 justify-start">
+            {/* Prompt row: sparkle + input */}
+            <View
+              className="flex-row items-center"
+              style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
+              <Ionicons name="sparkles" size={20} color="#f1913d" />
               <TextInput
                 value={query}
                 onChangeText={setQuery}
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
                 onSubmitEditing={submit}
                 returnKeyType="search"
-                multiline
                 accessibilityLabel={t('hero.subtitle')}
-                placeholder={showRotating ? '' : t('hero.searchPlaceholder')}
-                placeholderTextColor="#a8abae"
-                className="text-[16px] text-secondary leading-6"
-                style={{
-                  textAlign: isRTL ? 'right' : 'left',
-                  textAlignVertical: 'top',
-                  flex: 1,
-                }}
+                placeholder={t('hero.askAi')}
+                placeholderTextColor="#cf9266"
+                className="flex-1 text-[16px] text-secondary"
+                style={{ textAlign: isRTL ? 'right' : 'left', paddingVertical: 4 }}
               />
-              {showRotating ? (
-                <Animated.Text
-                  pointerEvents="none"
-                  numberOfLines={2}
-                  className="text-note text-[16px] leading-6 absolute"
-                  style={{
-                    opacity: placeholderOpacity,
-                    left: isRTL ? undefined : 0,
-                    right: isRTL ? 0 : undefined,
-                    top: 0,
-                    textAlign: isRTL ? 'right' : 'left',
-                  }}>
-                  {currentExample}
-                </Animated.Text>
-              ) : null}
             </View>
+
+            {/* Short suggestion chips — hidden once the user starts typing */}
+            {chips.length > 0 && query.trim().length === 0 ? (
+              <View
+                className="flex-row flex-wrap mt-3"
+                style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8 }}>
+                {chips.map((c, i) => (
+                  <Pressable
+                    key={`${c}-${i}`}
+                    onPress={() => onChip(c)}
+                    className="rounded-full border px-3.5 py-1.5 bg-white active:opacity-70"
+                    style={{ borderColor: '#f1913d55' }}>
+                    <Text className="text-primary text-[12px] font-semibold">{c}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
 
             {/* Bottom actions row — Filters chip + Send button */}
             <View
-              className="flex-row items-center justify-between mt-2"
+              className="flex-row items-center justify-between mt-3.5"
               style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
               <Pressable
                 onPress={() => setFiltersOpen(true)}
@@ -204,5 +159,48 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
         onClose={() => setFiltersOpen(false)}
       />
     </View>
+  );
+}
+
+/**
+ * Real-estate location-pin watermark: a map marker with a house inside it, plus
+ * a couple of smaller listing pins to read as "properties on a map". Used faint
+ * behind the hero title.
+ */
+function HomesWatermark({ size = 150, color = '#f1913d' }: { size?: number; color?: string }) {
+  const VB_W = 160;
+  const VB_H = 200;
+  return (
+    <Svg width={size} height={(size * VB_H) / VB_W} viewBox={`0 0 ${VB_W} ${VB_H}`} fill="none">
+      {/* Ground shadow under the pin */}
+      <Ellipse cx={80} cy={193} rx={26} ry={6} fill={color} fillOpacity={0.18} />
+
+      {/* Main location pin */}
+      <Path
+        d="M80 16 C49 16 24 41 24 72 C24 108 62 150 80 192 C98 150 136 108 136 72 C136 41 111 16 80 16 Z"
+        fill={color}
+        fillOpacity={0.28}
+        stroke={color}
+        strokeWidth={4}
+        strokeLinejoin="round"
+        strokeOpacity={0.65}
+      />
+
+      {/* House inside the pin */}
+      <Path d="M54 76 L80 50 L106 76 Z" fill={color} fillOpacity={0.7} />
+      <Rect x={61} y={76} width={38} height={30} rx={2} fill={color} fillOpacity={0.6} />
+      <Rect x={64} y={81} width={9} height={9} rx={1} fill={color} fillOpacity={0.9} />
+      <Rect x={87} y={81} width={9} height={9} rx={1} fill={color} fillOpacity={0.9} />
+      <Rect x={72} y={88} width={14} height={18} rx={1.5} fill={color} fillOpacity={0.9} />
+
+      {/* Secondary listing pins */}
+      <Circle cx={134} cy={112} r={7} fill={color} fillOpacity={0.3} />
+      <Path d="M128 116 L134 129 L140 116 Z" fill={color} fillOpacity={0.3} />
+      <Circle cx={134} cy={112} r={2.6} fill={color} fillOpacity={0.85} />
+
+      <Circle cx={26} cy={92} r={5.5} fill={color} fillOpacity={0.26} />
+      <Path d="M21 95 L26 105 L31 95 Z" fill={color} fillOpacity={0.26} />
+      <Circle cx={26} cy={92} r={2} fill={color} fillOpacity={0.8} />
+    </Svg>
   );
 }
