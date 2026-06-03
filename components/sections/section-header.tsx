@@ -11,7 +11,7 @@ export function SectionHeader({ title, subtitle, align = 'start' }: Props) {
   const alignClass = align === 'center' ? 'items-center' : 'items-start';
   const textClass = align === 'center' ? 'text-center' : '';
   return (
-    <View className={`px-5 mb-3 ${alignClass}`}>
+    <View className={`px-5 mb-5 ${alignClass}`}>
       <Text
         className={`text-secondary text-[18px] font-bold leading-[22px] ${textClass}`}
         style={{ letterSpacing: -0.3 }}>

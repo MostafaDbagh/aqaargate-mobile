@@ -1,19 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AccountIcon } from '@/components/account-icon';
 import { PropertyCard } from '@/components/property-card';
 import { SectionHeader } from '@/components/sections/section-header';
 import { SettingsIcon } from '@/components/settings-icon';
+import { ListingSkeletonGrid } from '@/components/skeletons/listing-skeleton';
 import { searchListings, type Listing } from '@/lib/api';
 
 export default function RentScreen() {
@@ -51,8 +45,8 @@ export default function RentScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center bg-white">
-              <ActivityIndicator size="large" color="#f1913d" />
+            <View className="px-5 pt-2 bg-white">
+              <ListingSkeletonGrid count={4} />
             </View>
           ) : isError ? (
             <View className="py-16 items-center bg-white px-5">
@@ -78,7 +72,7 @@ export default function RentScreen() {
           />
         }
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-5 bg-white">
+          <View {...rest} className="px-10 bg-white">
             {children}
           </View>
         )}

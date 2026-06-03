@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   RefreshControl,
@@ -17,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Project } from '@/apis/project';
 import { useProjects } from '@/apis/hooks';
+import { CardListSkeleton } from '@/components/skeletons/screen-skeletons';
 
 const STATUS_KEYS = ['all', 'off-plan', 'ready'] as const;
 type StatusKey = (typeof STATUS_KEYS)[number];
@@ -193,9 +193,8 @@ export default function ProjectsScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center">
-              <ActivityIndicator size="large" color="#f1913d" />
-              <Text className="text-text mt-3">{t('projectsScreen.loading')}</Text>
+            <View className="px-5 pt-2">
+              <CardListSkeleton count={5} height={150} />
             </View>
           ) : isError ? (
             <View className="py-16 items-center px-5">

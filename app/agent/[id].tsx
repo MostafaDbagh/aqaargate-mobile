@@ -3,20 +3,13 @@ import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  ScrollView,
-  Share,
-  Text,
-  View,
-} from 'react-native';
+import { Linking, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Agent } from '@/apis/agent';
 import { useAgent, useListingsByAgent } from '@/apis/hooks';
 import { PropertyCard } from '@/components/property-card';
+import { DetailScreenSkeleton } from '@/components/skeletons/screen-skeletons';
 import {
   formatAgentLocationParts,
   pickAgentCompany,
@@ -110,10 +103,7 @@ export default function AgentDetailsScreen() {
       </SafeAreaView>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f1913d" />
-          <Text className="text-text mt-3">{t('agentsScreen.loading')}</Text>
-        </View>
+        <DetailScreenSkeleton />
       ) : isError || !agent ? (
         <View className="flex-1 items-center justify-center px-5">
           <Ionicons name="alert-circle-outline" size={42} color="#f2695c" />

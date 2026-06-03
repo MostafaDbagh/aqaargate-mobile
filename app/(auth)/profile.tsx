@@ -2,13 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, Text, View } from 'react-native';
 
 import { useAuth, useChangePassword, useUpdateProfile } from '@/apis/hooks';
 import { AuthScreenShell } from '@/components/forms/auth-screen-shell';
 import { PasswordField } from '@/components/forms/password-field';
+import { PhoneInput } from '@/components/forms/phone-input';
 import { PrimaryButton } from '@/components/forms/primary-button';
 import { TextField } from '@/components/forms/text-field';
 import { useToast } from '@/components/feedback/toast';
@@ -143,11 +144,17 @@ function ProfileForm({
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <TextField
+      <Controller
         control={control}
         name="phone"
-        label={t('profile.phone')}
-        keyboardType="phone-pad"
+        render={({ field: { value, onChange, onBlur } }) => (
+          <PhoneInput
+            label={t('profile.phone')}
+            value={(value as string) ?? ''}
+            onChange={onChange}
+            onBlur={onBlur}
+          />
+        )}
       />
       <TextField
         control={control}

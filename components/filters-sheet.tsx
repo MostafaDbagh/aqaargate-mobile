@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PROPERTY_TYPES, PROPERTY_TYPE_AR } from '@/constants/property-types';
 import type { SearchParams } from '@/lib/api';
 
 import { CloseIcon } from './icons/svg-icons';
@@ -35,16 +36,6 @@ const CITIES = [
   'Tartus',
   'As-Suwayda',
   'Raqqah',
-] as const;
-
-const PROPERTY_TYPES = [
-  'Apartment',
-  'Villa/farms',
-  'Building',
-  'Office',
-  'Commercial',
-  'Land',
-  'Holiday Home',
 ] as const;
 
 const BEDROOM_OPTIONS = ['studio', '1', '2', '3', '4', '5', '6'] as const;
@@ -80,16 +71,6 @@ const CITY_AR: Record<string, string> = {
   Tartus: 'طرطوس',
   'As-Suwayda': 'السويداء',
   Raqqah: 'الرقة',
-};
-
-const PROPERTY_TYPE_AR: Record<string, string> = {
-  Apartment: 'شقة',
-  'Villa/farms': 'فيلا/مزرعة',
-  Building: 'بناء كامل',
-  Office: 'مكتب',
-  Commercial: 'محل تجاري',
-  Land: 'أرض',
-  'Holiday Home': 'بيت عطلات',
 };
 
 const NON_RESIDENTIAL = new Set(['Commercial', 'Land', 'Building']);

@@ -2,19 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  ScrollView,
-  Share,
-  Text,
-  View,
-} from 'react-native';
+import { Linking, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Project, ProjectUnitType } from '@/apis/project';
 import { useProject } from '@/apis/hooks';
+import { DetailScreenSkeleton } from '@/components/skeletons/screen-skeletons';
 
 const formatPriceRange = (
   start?: number,
@@ -95,9 +88,7 @@ export default function ProjectDetailScreen() {
       </SafeAreaView>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f1913d" />
-        </View>
+        <DetailScreenSkeleton />
       ) : isError || !project ? (
         <View className="flex-1 items-center justify-center px-5">
           <Text className="text-text mb-3">{t('projectsScreen.errorMessage')}</Text>

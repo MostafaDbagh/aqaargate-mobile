@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useListing } from '@/apis/hooks';
+import { DetailScreenSkeleton } from '@/components/skeletons/screen-skeletons';
+import { getCitySlug } from '@/constants/cities';
+import { slugForPropertyType } from '@/lib/property-type-config';
 import { AgentCard } from '@/components/property/agent-card';
 import { Amenities } from '@/components/property/amenities';
 import { Description, Notes } from '@/components/property/description';
@@ -24,7 +27,10 @@ export default function PropertyDetailScreen() {
 
   const onShare = async () => {
     if (!listing) return;
-    const url = `https://aqaargate.com/property-detail/${listing._id}`;
+    // Canonical web URL: /property-detail/{citySlug}/{typeSlug}/{id} (mirrors web buildPropertyHref)
+    const citySlug = getCitySlug(listing.city ?? listing.state) || 'syria';
+    const typeSlug = slugForPropertyType(listing.propertyType) || 'property';
+    const url = `https://aqaargate.com/property-detail/${citySlug}/${typeSlug}/${listing._id}`;
     await Share.share({
       message: `${listing.propertyKeyword ?? listing.propertyType ?? 'Property'} — ${url}`,
       url,
@@ -53,9 +59,7 @@ export default function PropertyDetailScreen() {
       </SafeAreaView>
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#f1913d" />
-        </View>
+        <DetailScreenSkeleton />
       ) : isError || !listing ? (
         <View className="flex-1 items-center justify-center px-5">
           <Text className="text-text mb-3">{t('propertyDetail.error')}</Text>

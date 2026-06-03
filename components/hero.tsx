@@ -6,7 +6,7 @@ import { Animated, Pressable, Text, TextInput, View } from 'react-native';
 import type { SearchParams } from '@/lib/api';
 
 import { FiltersSheet } from './filters-sheet';
-import { FilterIcon, SendArrowIcon, SparklesIcon } from './icons/svg-icons';
+import { FilterIcon, SendArrowIcon } from './icons/svg-icons';
 
 type Status = '' | 'sale' | 'rent';
 
@@ -18,12 +18,6 @@ type Props = {
 
 const ROTATE_MS = 3000;
 const FADE_MS = 260;
-
-const QUICK_FILTERS: { key: Status; labelKey: string }[] = [
-  { key: '', labelKey: 'hero.forAll' },
-  { key: 'sale', labelKey: 'hero.forSale' },
-  { key: 'rent', labelKey: 'hero.forRent' },
-];
 
 export function Hero({ value, onSearch, onApplyFilters }: Props) {
   const { t, i18n } = useTranslation();
@@ -61,9 +55,6 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
   }, [query, focused, examples.length, placeholderOpacity]);
 
   const submit = () => onSearch({ keyword: query.trim(), status });
-  const pickStatus = (next: Status) => {
-    onSearch({ keyword: query.trim(), status: next });
-  };
 
   const currentExample = examples[exampleIndex] ?? '';
   const showRotating = query.length === 0 && !focused && examples.length > 0;
@@ -104,21 +95,9 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
         />
 
         <View className="px-5 pt-5 pb-8">
-          {/* Glass pill tag */}
-          <View
-            className="self-start flex-row items-center gap-1.5 bg-white/8 border border-white/15 rounded-full px-2.5 py-[3px]"
-            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-            <View className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <Text
-              className="text-white/85 text-[10px] font-semibold"
-              style={{ letterSpacing: 0.4 }}>
-              {t('hero.tag')}
-            </Text>
-          </View>
-
           {/* Title */}
           <Text
-            className="text-white text-[28px] font-extrabold leading-[34px] mt-3.5"
+            className="text-white text-[28px] font-extrabold leading-[34px]"
             style={{ textAlign: isRTL ? 'right' : 'left', letterSpacing: -0.5 }}>
             {t('hero.title')}
           </Text>
@@ -128,21 +107,9 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
             {t('hero.tagline')}
           </Text>
 
-          {/* AI Search label outside the box */}
-          <View
-            className="mt-5 mb-1.5 flex-row items-center gap-1.5 self-start"
-            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-            <SparklesIcon size={12} color="#f1913d" />
-            <Text
-              className="text-primary text-[10px] font-bold uppercase"
-              style={{ letterSpacing: 1.4 }}>
-              {t('hero.subtitle')}
-            </Text>
-          </View>
-
           {/* Tall chat-style input */}
           <View
-            className="bg-white"
+            className="bg-white mt-5"
             style={{
               borderRadius: 24,
               shadowColor: '#000',
@@ -227,31 +194,6 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
             </View>
           </View>
 
-          {/* Quick filter pills BELOW the input */}
-          <View
-            className="mt-3.5 flex-row items-center gap-2"
-            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-            {QUICK_FILTERS.map((f) => {
-              const active = status === f.key;
-              return (
-                <Pressable
-                  key={f.key || 'all'}
-                  onPress={() => pickStatus(f.key)}
-                  className={`px-3.5 py-1.5 rounded-full border ${
-                    active
-                      ? 'bg-white border-white'
-                      : 'bg-white/8 border-white/15 active:bg-white/12'
-                  }`}>
-                  <Text
-                    className={`text-[12px] font-bold ${
-                      active ? 'text-secondary' : 'text-white/80'
-                    }`}>
-                    {t(f.labelKey)}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
         </View>
       </View>
 

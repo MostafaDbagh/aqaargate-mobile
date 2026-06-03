@@ -21,6 +21,7 @@ import {
   type PropertyRentalType,
 } from '@/apis/propertyRental';
 import { useToast } from '@/components/feedback/toast';
+import { PhoneInput } from '@/components/forms/phone-input';
 import { CloseIcon } from '@/components/icons/svg-icons';
 import { getApiErrorMessage } from '@/lib/api';
 
@@ -301,16 +302,15 @@ export default function RentalServiceScreen() {
             />
 
             <FieldLabel text={t('rentalService.ownerPhone')} required isRTL={isRTL} />
-            <Input
+            <PhoneInput
               placeholder={t('rentalService.ownerPhonePlaceholder')}
               value={ownerPhone}
-              onChangeText={(v) => {
+              onChange={(v) => {
                 setOwnerPhone(v);
                 clearError('ownerPhone');
               }}
-              keyboardType="phone-pad"
-              error={errors.ownerPhone}
-              isRTL={isRTL}
+              error={!!errors.ownerPhone}
+              errorText={errors.ownerPhone}
             />
 
             <FieldLabel text={t('rentalService.propertyType')} required isRTL={isRTL} />

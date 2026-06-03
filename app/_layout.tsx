@@ -6,12 +6,14 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 import { Provider as ReduxProvider } from 'react-redux';
 import 'react-native-reanimated';
 
 import { ToastProvider } from '@/components/feedback/toast';
 import { FontProvider } from '@/components/font-provider';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useOnboardingGate } from '@/hooks/use-onboarding-gate';
 import { setUnauthorizedHandler } from '@/lib/api';
 import { queryClient } from '@/lib/query-client';
 import { clearCredentials, hydrateAuth } from '@/store/persist';
@@ -24,6 +26,9 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
+  // First-run gate: redirects new installs to the onboarding carousel and keeps
+  // an opaque cover up until the (async) "seen" check resolves.
+  const booting = useOnboardingGate();
 
   useEffect(() => {
     hydrateAuth();
@@ -47,6 +52,10 @@ export default function RootLayout() {
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
               <Stack.Screen
+                name="onboarding"
+                options={{ headerShown: false, animation: 'none', gestureEnabled: false }}
+              />
+              <Stack.Screen
                 name="(auth)"
                 options={{ headerShown: false, presentation: 'modal' }}
               />
@@ -58,8 +67,21 @@ export default function RootLayout() {
               <Stack.Screen name="contact" options={{ headerShown: false, animation: 'slide_from_right' }} />
               <Stack.Screen name="interested-buyer" options={{ headerShown: false, animation: 'slide_from_right' }} />
               <Stack.Screen name="rental-service" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="search" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="holiday-homes" options={{ headerShown: false, animation: 'slide_from_right' }} />
             </Stack>
             <StatusBar style="auto" />
+            {booting ? (
+              <View
+                pointerEvents="none"
+                style={[styles.cover, { backgroundColor: colorScheme === 'dark' ? '#000000' : '#ffffff' }]}>
+                <Image
+                  source={require('../assets/images/splash-icon.png')}
+                  style={styles.coverIcon}
+                  resizeMode="contain"
+                />
+              </View>
+            ) : null}
           </ThemeProvider>
         </ToastProvider>
         </FontProvider>
@@ -67,3 +89,13 @@ export default function RootLayout() {
     </ReduxProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  cover: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  coverIcon: { width: 200, height: 200 },
+});

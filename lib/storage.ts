@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const STORAGE_KEYS = {
   token: 'token',
   user: 'user',
+  // Bump the suffix to re-trigger the first-run onboarding after a material rewrite.
+  onboardingSeen: 'onboarding_seen_v1',
 } as const;
 
 export const storage = {

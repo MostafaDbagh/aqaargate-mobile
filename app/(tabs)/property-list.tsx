@@ -22,6 +22,7 @@ import {
   PropertyFilterModal,
   type PropertyFiltersValue,
 } from '@/components/property-filter-modal';
+import { ListingSkeletonGrid } from '@/components/skeletons/listing-skeleton';
 import { searchListingsPaginated, type Listing, type SearchParams } from '@/lib/api';
 
 type Status = PropertyFiltersValue['status'];
@@ -166,7 +167,11 @@ export default function PropertyListScreen() {
             className="text-secondary text-[17px] font-extrabold tracking-tight"
             numberOfLines={1}
             style={{ textAlign: isRTL ? 'right' : 'left' }}>
-            {t('propertyList.title')}
+            {filters.status === 'sale'
+              ? t('properties.titleSaleOnly')
+              : filters.status === 'rent'
+                ? t('properties.titleRentOnly')
+                : t('propertyList.title')}
           </Text>
           {total > 0 ? (
             <Text
@@ -248,14 +253,14 @@ export default function PropertyListScreen() {
         renderItem={({ item }) => <PropertyCard listing={item} />}
         contentContainerStyle={{ paddingTop: 8, paddingBottom: 32, backgroundColor: '#ffffff' }}
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-5 bg-white">
+          <View {...rest} className="px-10 bg-white">
             {children}
           </View>
         )}
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center bg-white">
-              <ActivityIndicator size="large" color="#f1913d" />
+            <View className="px-5 pt-2 bg-white">
+              <ListingSkeletonGrid count={4} />
             </View>
           ) : isError ? (
             <View className="py-16 items-center bg-white px-5">

@@ -3,10 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 import { AreaIcon, BathIcon, BedIcon } from '@/components/icons/svg-icons';
+import { localizeListingStatus } from '@/constants/listing-status';
+import { localizePropertyType } from '@/constants/property-types';
+import { getSizeUnitLabel } from '@/constants/size-units';
 import type { ExtendedListing } from '@/apis/listing';
 
 export function QuickSpecs({ listing }: { listing: ExtendedListing }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const isLand = listing.propertyType === 'Land';
   return (
     <View className="mx-5 mt-4 flex-row items-center justify-around bg-cream rounded-xl py-3 px-2">
@@ -19,7 +23,7 @@ export function QuickSpecs({ listing }: { listing: ExtendedListing }) {
       <SpecCell
         icon={<AreaIcon size={18} color="#f1913d" />}
         value={`${listing.size ?? 0}`}
-        label={listing.sizeUnit || 'sqm'}
+        label={getSizeUnitLabel(listing.sizeUnit, isAr)}
       />
     </View>
   );
@@ -46,19 +50,24 @@ function SpecCell({ icon, value, label }: { icon: React.ReactNode; value: string
 }
 
 export function DetailsGrid({ listing }: { listing: ExtendedListing }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
+  const yes = isAr ? 'نعم' : 'Yes';
+  const no = isAr ? 'لا' : 'No';
   const rows: { label: string; value: string }[] = [];
   if (listing.propertyId) rows.push({ label: t('propertyDetail.id'), value: listing.propertyId });
-  if (listing.propertyType) rows.push({ label: t('propertyDetail.type'), value: listing.propertyType });
-  if (listing.status) rows.push({ label: t('propertyDetail.status'), value: listing.status });
+  if (listing.propertyType)
+    rows.push({ label: t('propertyDetail.type'), value: localizePropertyType(listing.propertyType, i18n.language) ?? listing.propertyType });
+  if (listing.status)
+    rows.push({ label: t('propertyDetail.status'), value: localizeListingStatus(listing.status, i18n.language) ?? listing.status });
   if (listing.bedrooms != null) rows.push({ label: t('propertyDetail.bedrooms'), value: String(listing.bedrooms) });
   if (listing.bathrooms != null) rows.push({ label: t('propertyDetail.bathrooms'), value: String(listing.bathrooms) });
-  if (listing.size != null) rows.push({ label: t('propertyDetail.size'), value: `${listing.size} ${listing.sizeUnit ?? 'sqm'}` });
-  if (listing.landArea) rows.push({ label: t('propertyDetail.landArea'), value: `${listing.landArea} ${listing.sizeUnit ?? 'sqm'}` });
+  if (listing.size != null) rows.push({ label: t('propertyDetail.size'), value: `${listing.size} ${getSizeUnitLabel(listing.sizeUnit, isAr)}` });
+  if (listing.landArea) rows.push({ label: t('propertyDetail.landArea'), value: `${listing.landArea} ${getSizeUnitLabel(listing.sizeUnit, isAr)}` });
   if (listing.floor != null) rows.push({ label: t('propertyDetail.floor'), value: String(listing.floor) });
   if (listing.yearBuilt) rows.push({ label: t('propertyDetail.yearBuilt'), value: String(listing.yearBuilt) });
-  if (listing.garages) rows.push({ label: t('propertyDetail.garages'), value: listing.garageSize ? String(listing.garageSize) : 'Yes' });
-  if (listing.furnished != null) rows.push({ label: t('propertyDetail.furnished'), value: listing.furnished ? 'Yes' : 'No' });
+  if (listing.garages) rows.push({ label: t('propertyDetail.garages'), value: listing.garageSize ? String(listing.garageSize) : yes });
+  if (listing.furnished != null) rows.push({ label: t('propertyDetail.furnished'), value: listing.furnished ? yes : no });
 
   if (rows.length === 0) return null;
 

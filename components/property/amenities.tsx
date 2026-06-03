@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
+import { amenityToTranslationKey, localizeAmenity } from '@/constants/amenities';
+
 import { SectionTitle } from './specs-grid';
 
 // Maps web's supported amenity names → an Ionicons glyph + i18n key suffix.
@@ -20,13 +22,14 @@ const AMENITY_META: Record<
   Gym: { icon: 'barbell-outline', translateKey: 'gym' },
   'Security cameras': { icon: 'videocam-outline', translateKey: 'securityCameras' },
   Reception: { icon: 'people-outline', translateKey: 'receptionNator' },
+  'Reception (nator)': { icon: 'people-outline', translateKey: 'receptionNator' },
   Balcony: { icon: 'sunny-outline', translateKey: 'balcony' },
   'Swimming pool': { icon: 'water-outline', translateKey: 'swimmingPool' },
   'Fire alarms': { icon: 'alert-circle-outline', translateKey: 'fireAlarms' },
 };
 
 export function Amenities({ amenities = [] }: { amenities: string[] }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   if (!amenities || amenities.length === 0) return null;
 
   return (
@@ -35,7 +38,9 @@ export function Amenities({ amenities = [] }: { amenities: string[] }) {
       <View className="flex-row flex-wrap" style={{ marginHorizontal: -3 }}>
         {amenities.map((name) => {
           const meta = AMENITY_META[name];
-          const label = meta ? t(`amenities.${meta.translateKey}`, name) : name;
+          const transKey = amenityToTranslationKey[name] ?? meta?.translateKey;
+          const fallback = localizeAmenity(name, i18n.language) ?? name;
+          const label = transKey ? t(`amenities.${transKey}`, { defaultValue: fallback }) : fallback;
           const iconName = meta?.icon ?? 'checkmark-circle-outline';
           return (
             <View key={name} className="w-1/2 p-1">

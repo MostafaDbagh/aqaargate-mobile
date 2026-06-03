@@ -3,21 +3,14 @@ import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Linking,
-  Pressable,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Linking, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AccountIcon } from '@/components/account-icon';
 import { CrownIcon } from '@/components/icons/svg-icons';
 import { PropertyCard } from '@/components/property-card';
 import { SettingsIcon } from '@/components/settings-icon';
+import { ListingSkeletonGrid } from '@/components/skeletons/listing-skeleton';
 import { searchListings, type Listing } from '@/lib/api';
 
 const HERO_IMAGE =
@@ -245,8 +238,8 @@ export default function VipScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center bg-cream">
-              <ActivityIndicator size="large" color="#f1913d" />
+            <View className="px-5 pt-4 bg-cream">
+              <ListingSkeletonGrid count={3} />
             </View>
           ) : isError ? (
             <View className="py-16 items-center bg-cream px-5">
@@ -339,7 +332,7 @@ export default function VipScreen() {
           />
         }
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-5 bg-cream">
+          <View {...rest} className="px-10 bg-cream">
             {children}
           </View>
         )}

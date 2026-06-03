@@ -8,6 +8,7 @@ import { useSendOtp } from '@/apis/hooks';
 import { AuthScreenShell } from '@/components/forms/auth-screen-shell';
 import { CheckboxField } from '@/components/forms/checkbox-field';
 import { PasswordField } from '@/components/forms/password-field';
+import { PasswordStrengthMeter } from '@/components/forms/password-strength-meter';
 import { PrimaryButton } from '@/components/forms/primary-button';
 import { TextField } from '@/components/forms/text-field';
 import { useToast } from '@/components/feedback/toast';
@@ -73,6 +74,7 @@ export default function RegisterScreen() {
         label={t('register.password')}
         placeholder={t('register.passwordPlaceholder')}
       />
+      <PasswordStrengthMeter control={control} name="password" />
       <PasswordField
         control={control}
         name="confirmPassword"

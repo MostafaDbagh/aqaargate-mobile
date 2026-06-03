@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { contactAPI, type ContactPayload } from '@/apis/contact';
 import { useToast } from '@/components/feedback/toast';
+import { PhoneInput } from '@/components/forms/phone-input';
 import { CloseIcon } from '@/components/icons/svg-icons';
 import { getApiErrorMessage } from '@/lib/api';
 
@@ -210,16 +211,15 @@ export default function ContactScreen() {
             />
 
             <FieldLabel text={t('contact.phoneNumber')} required isRTL={isRTL} />
-            <Input
+            <PhoneInput
               placeholder={t('contact.phonePlaceholder')}
               value={phone}
-              onChangeText={(v) => {
+              onChange={(v) => {
                 setPhone(v);
                 clearError('phone');
               }}
-              keyboardType="phone-pad"
-              error={errors.phone}
-              isRTL={isRTL}
+              error={!!errors.phone}
+              errorText={errors.phone}
             />
 
             <FieldLabel text={t('contact.interestedIn')} required isRTL={isRTL} />

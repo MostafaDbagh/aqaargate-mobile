@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   FlatList,
   Linking,
   Pressable,
@@ -20,6 +19,7 @@ import { AccountIcon } from '@/components/account-icon';
 import { AgentCard } from '@/components/agent-card';
 import { SectionHeader } from '@/components/sections/section-header';
 import { SettingsIcon } from '@/components/settings-icon';
+import { CardListSkeleton } from '@/components/skeletons/screen-skeletons';
 import {
   AGENT_LOCATION_FILTER_KEYS,
   matchesAgentLocationFilter,
@@ -173,11 +173,8 @@ export default function AgentsScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center bg-white">
-              <ActivityIndicator size="large" color="#f1913d" />
-              <Text className="text-text mt-3">
-                {t('agentsScreen.loading')}
-              </Text>
+            <View className="px-5 pt-2 bg-white">
+              <CardListSkeleton count={6} height={120} />
             </View>
           ) : isError ? (
             <View className="py-16 items-center bg-white px-5">

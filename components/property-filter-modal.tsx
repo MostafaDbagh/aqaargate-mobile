@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PROPERTY_TYPES } from '@/constants/property-types';
+
 import { CloseIcon } from './icons/svg-icons';
 
 export type PropertyFiltersValue = {
@@ -41,18 +43,6 @@ const CURRENCIES: { code: string; label: string }[] = [
   { code: 'SYP', label: 'SYP' },
   { code: 'EUR', label: 'EUR (€)' },
   { code: 'TRY', label: 'TRY (₺)' },
-];
-
-const PROPERTY_TYPES = [
-  'Apartment',
-  'Villa',
-  'House',
-  'Land',
-  'Office',
-  'Commercial',
-  'Building',
-  'Holiday Home',
-  'Chalet',
 ];
 
 const CITIES = [

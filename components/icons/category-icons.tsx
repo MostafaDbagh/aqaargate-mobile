@@ -107,20 +107,19 @@ function HolidayHome({ size = 28, color = 'currentColor' }: Props) {
 /* ----- Filled equivalents for icomoon glyphs (house / office1 / land) ----- */
 
 function Building({ size = 28, color = 'currentColor' }: Props) {
-  // Tall residential building with shutters
+  // Clean residential apartment block (Material "apartment").
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
-      <Path d="M5 2a1 1 0 0 0-1 1v18h6v-5h4v5h6V3a1 1 0 0 0-1-1H5zm2 4h3v3H7V6zm7 0h3v3h-3V6zM7 11h3v3H7v-3zm7 0h3v3h-3v-3zM7 16h3v3H7v-3z" />
-      <Path d="M2 21h20v1H2z" />
+      <Path d="M17 11V3H7v4H3v14h8v-4h2v4h8V11h-4zM7 19H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V9h2v2zm4 4H9v-2h2v2zm0-4H9V9h2v2zm0-4H9V5h2v2zm4 8h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm4 12h-2v-2h2v2zm0-4h-2v-2h2v2z" />
     </Svg>
   );
 }
 
 function Office({ size = 28, color = 'currentColor' }: Props) {
-  // Office building with awning and window grid
+  // Clean commercial / office complex (Material "business").
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
-      <Path d="M3 2v20h7v-5h4v5h7V2H3zm4 3h2v2H7V5zm0 4h2v2H7V9zm0 4h2v2H7v-2zm4-8h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2zm4-8h2v2h-2V5zm0 4h2v2h-2V9zm0 4h2v2h-2v-2z" />
+      <Path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
     </Svg>
   );
 }

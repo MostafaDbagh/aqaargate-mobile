@@ -73,24 +73,11 @@ export default function SettingsScreen() {
       <View
         className="px-4 pt-2 pb-3 bg-white border-b border-line"
         style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center' }}>
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={8}
-          accessibilityLabel={t('settings.back')}
-          className="w-9 h-9 rounded-full items-center justify-center active:bg-cream">
-          <Ionicons
-            name={isRTL ? 'chevron-forward' : 'chevron-back'}
-            size={22}
-            color="#2c2e33"
-          />
-        </Pressable>
         <Text
           className="flex-1 text-secondary text-[18px] font-extrabold"
           style={{ textAlign: 'center' }}>
           {t('settings.title')}
         </Text>
-        {/* Spacer to balance back button */}
-        <View className="w-9 h-9" />
       </View>
 
       <ScrollView

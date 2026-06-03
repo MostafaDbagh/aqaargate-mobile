@@ -23,7 +23,9 @@ import {
   type FutureBuyerStatus,
 } from '@/apis/futureBuyer';
 import { useToast } from '@/components/feedback/toast';
+import { PhoneInput } from '@/components/forms/phone-input';
 import { CloseIcon } from '@/components/icons/svg-icons';
+import { PROPERTY_TYPES } from '@/constants/property-types';
 import { getApiErrorMessage } from '@/lib/api';
 
 const CITIES = [
@@ -38,16 +40,6 @@ const CITIES = [
   'As-Suwayda',
   'Deir ez-Zur',
   'Raqqah',
-];
-
-const PROPERTY_TYPES = [
-  'Apartment',
-  'Villa',
-  'Building',
-  'Land',
-  'Holiday Home',
-  'Office',
-  'Commercial',
 ];
 
 const CURRENCIES: { code: FutureBuyerCurrency; label: string }[] = [
@@ -265,16 +257,15 @@ export default function InterestedBuyerScreen() {
             />
 
             <FieldLabel text={t('interestedBuyer.phone')} required isRTL={isRTL} />
-            <Input
+            <PhoneInput
               placeholder={t('interestedBuyer.phonePlaceholder')}
               value={phone}
-              onChangeText={(v) => {
+              onChange={(v) => {
                 setPhone(v);
                 clearError('phone');
               }}
-              keyboardType="phone-pad"
-              error={errors.phone}
-              isRTL={isRTL}
+              error={!!errors.phone}
+              errorText={errors.phone}
             />
 
             {/* Requirements */}

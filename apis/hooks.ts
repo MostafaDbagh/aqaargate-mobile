@@ -1,11 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { clearCredentials, persistCredentials } from '@/store/persist';
+import { selectIsAuthenticated } from '@/store/selectors';
+import { useAppSelector } from '@/store/store';
 
 import { agentAPI } from './agent';
 import { authAPI, type OtpType, type SigninPayload, type SignupPayload } from './auth';
 import { categoryAPI } from './category';
 import { cityAPI } from './city';
+import { favoriteAPI, extractFavoriteId } from './favorites';
 import { listingAPI } from './listing';
 import { projectAPI, type ProjectsQuery } from './project';
 import { userAPI, type UpdateProfilePayload } from './user';
@@ -155,5 +159,38 @@ export function useProject(identifier: string | undefined) {
     queryFn: () => projectAPI.getProjectBySlugOrId(identifier as string),
     enabled: !!identifier,
     staleTime: 60 * 1000,
+  });
+}
+
+// ---- Favorites (heart) ----
+
+/** Set of favorited listing ids for the current user. Only fetches when signed in. */
+export function useFavoriteIds() {
+  const isAuthed = useAppSelector(selectIsAuthenticated);
+  const query = useQuery({
+    queryKey: ['favorites'],
+    queryFn: favoriteAPI.list,
+    enabled: isAuthed,
+    staleTime: 60 * 1000,
+  });
+  const ids = useMemo(
+    () =>
+      new Set(
+        (query.data ?? [])
+          .map(extractFavoriteId)
+          .filter((x): x is string => !!x)
+      ),
+    [query.data]
+  );
+  return { ids, isAuthed, ...query };
+}
+
+/** Toggle a listing's favorite status (add when not favorited, remove otherwise). */
+export function useToggleFavorite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, favorited }: { id: string; favorited: boolean }) =>
+      favorited ? favoriteAPI.remove(id) : favoriteAPI.add(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['favorites'] }),
   });
 }

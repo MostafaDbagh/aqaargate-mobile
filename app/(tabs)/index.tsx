@@ -2,14 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Hero } from '@/components/hero';
@@ -17,8 +10,11 @@ import { HomeHeader } from '@/components/home-header';
 import { PropertyCard } from '@/components/property-card';
 import { CategoriesSection } from '@/components/sections/categories-section';
 import { CitiesSection } from '@/components/sections/cities-section';
+import { HolidayHomesSection } from '@/components/sections/holiday-homes-section';
 import { SectionHeader } from '@/components/sections/section-header';
 import { SocialMediaBar } from '@/components/sections/social-media-bar';
+import { SummerCta } from '@/components/sections/summer-cta';
+import { ListingSkeletonGrid } from '@/components/skeletons/listing-skeleton';
 import { searchListings, type Listing, type SearchParams } from '@/lib/api';
 
 export default function HomeScreen() {
@@ -51,7 +47,13 @@ export default function HomeScreen() {
   };
 
   const handleHeroSearch = ({ keyword, status }: { keyword: string; status: string }) => {
-    updateFilter({ keyword: keyword || '', status: (status as SearchParams['status']) || '' });
+    // A real keyword search opens the dedicated, status-agnostic results screen
+    // (mirrors the web /search). A bare status pill just filters the home list.
+    if (keyword) {
+      router.push({ pathname: '/search', params: { keyword } });
+      return;
+    }
+    updateFilter({ status: (status as SearchParams['status']) || '' });
   };
 
   return (
@@ -94,8 +96,8 @@ export default function HomeScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <View className="py-16 items-center">
-              <ActivityIndicator size="large" color="#f1913d" />
+            <View className="px-5 pt-2">
+              <ListingSkeletonGrid count={4} />
             </View>
           ) : isError ? (
             <View className="py-16 items-center px-5">
@@ -112,7 +114,13 @@ export default function HomeScreen() {
             </View>
           )
         }
-        ListFooterComponent={<SocialMediaBar />}
+        ListFooterComponent={
+          <View className="gap-6 pt-6">
+            <HolidayHomesSection />
+            <SummerCta />
+            <SocialMediaBar />
+          </View>
+        }
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -122,7 +130,7 @@ export default function HomeScreen() {
           />
         }
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-5">
+          <View {...rest} className="px-8">
             {children}
           </View>
         )}

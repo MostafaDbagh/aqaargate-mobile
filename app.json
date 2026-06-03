@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "aqaargate-mobile",
+    "name": "AqaarGate",
     "slug": "aqaargate-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,9 +9,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aqaargate.mobile",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.aqaargate.mobile",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -44,6 +48,19 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d7998221-3daa-46a8-b3d9-9a61fbd6ae60"
+      }
+    },
+    "owner": "mostafadbagh",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d7998221-3daa-46a8-b3d9-9a61fbd6ae60"
     }
   }
 }

@@ -1,13 +1,16 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View, type ViewStyle } from 'react-native';
 
 import { useCities } from '@/apis/hooks';
 import { resolveCityImageUrl } from '@/apis/city';
+import { EN_TO_AR_CITY } from '@/constants/cities';
+import { ShimmerOverlay, SkeletonBlock } from '@/components/skeletons/listing-skeleton';
 
 import { SectionHeader } from './section-header';
 
+// Fallback for cities not in the canonical constants/cities.ts set (web source
+// of truth). Canonical names resolve via EN_TO_AR_CITY first.
 const CITY_AR: Record<string, string> = {
   Damascus: 'دمشق',
   Latakia: 'اللاذقية',
@@ -24,6 +27,16 @@ const CITY_AR: Record<string, string> = {
   Suwayda: 'السويداء',
 };
 
+const THUMB = 64;
+
+const thumbShadow: ViewStyle = {
+  shadowColor: '#0f172a',
+  shadowOpacity: 0.12,
+  shadowRadius: 6,
+  shadowOffset: { width: 0, height: 3 },
+  elevation: 3,
+};
+
 type Props = {
   activeCity?: string;
   onSelect: (city: string) => void;
@@ -38,120 +51,88 @@ export function CitiesSection({ activeCity, onSelect }: Props) {
 
   return (
     <View className="py-5 bg-white">
-      <SectionHeader
-        title={t('citiesSection.title')}
-        subtitle={t('citiesSection.subtitle')}
-      />
+      <SectionHeader title={t('citiesSection.title')} subtitle={t('citiesSection.subtitle')} />
 
       {isLoading ? (
-        <View className="h-[200px] items-center justify-center">
-          <ActivityIndicator color="#f1913d" />
+        <View
+          className="flex-row px-5"
+          style={{ gap: 18, position: 'relative', overflow: 'hidden' }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <View
+              key={i}
+              className="flex-row items-center"
+              style={{ flexDirection: isAr ? 'row-reverse' : 'row', gap: 12 }}>
+              <SkeletonBlock style={{ width: THUMB, height: THUMB, borderRadius: 16 }} />
+              <View>
+                <SkeletonBlock style={{ width: 84, height: 15 }} />
+                <SkeletonBlock className="mt-2" style={{ width: 62, height: 12 }} />
+              </View>
+            </View>
+          ))}
+          <ShimmerOverlay />
         </View>
       ) : (
-        <View className="px-5 flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
-          {cities.slice(0, 6).map((c) => {
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, gap: 22 }}>
+          {cities.slice(0, 10).map((c) => {
             const url = resolveCityImageUrl(c.imageSrc);
-            const label = isAr ? CITY_AR[c.city] ?? c.displayName : c.displayName;
+            const label = isAr ? EN_TO_AR_CITY[c.city] ?? CITY_AR[c.city] ?? c.displayName : c.displayName;
             const active = activeCity === c.city;
             const countLabel = `${c.count} ${
               c.count === 1 ? t('common.property') : t('common.properties')
             }`;
             return (
-              <View key={c.city} className="w-1/2 p-1.5">
-                <Pressable
-                  onPress={() => onSelect(active ? '' : c.city)}
-                  accessibilityRole="button"
-                  style={{
-                    height: 220,
-                    borderRadius: 12,
-                    overflow: 'hidden',
-                    backgroundColor: '#e8eaed',
-                    shadowColor: '#000',
-                    shadowOpacity: 0.1,
-                    shadowRadius: 15,
-                    shadowOffset: { width: 0, height: 4 },
-                    elevation: 4,
-                  }}>
-                  {url ? (
-                    <Image
-                      source={{ uri: url }}
-                      style={{ width: '100%', height: '100%', position: 'absolute' }}
-                      contentFit="cover"
-                      transition={150}
-                    />
-                  ) : null}
-
-                  {/* Bottom gradient — matches web: 0 → 0.25 → 0.45 at 0.6 opacity */}
-                  <LinearGradient
-                    colors={[
-                      'rgba(0,0,0,0)',
-                      'rgba(0,0,0,0.25)',
-                      'rgba(0,0,0,0.45)',
-                    ]}
-                    locations={[0, 0.7, 1]}
-                    style={{ position: 'absolute', inset: 0, opacity: 0.6 }}
-                  />
-
-                  {/* Active ring */}
-                  {active ? (
-                    <View
-                      className="absolute inset-0 border-2 border-primary"
-                      style={{ borderRadius: 12 }}
-                    />
-                  ) : null}
-
-                  {/* Bottom content — city name + orange count pill */}
-                  <View className="absolute left-4 right-4 bottom-4">
-                    <Text
-                      numberOfLines={1}
-                      style={{
-                        color: '#ffffff',
-                        fontSize: 17,
-                        fontWeight: '700',
-                        lineHeight: 22,
-                        letterSpacing: -0.3,
-                        textShadowColor: 'rgba(0,0,0,0.6)',
-                        textShadowOffset: { width: 0, height: 1 },
-                        textShadowRadius: 3,
-                        textAlign: isAr ? 'right' : 'left',
-                      }}>
-                      {label}
-                    </Text>
-                    {/* Orange gradient count pill — matches web: 135deg #ff6b35 → #ff8c42 */}
-                    <View
-                      style={{
-                        alignSelf: isAr ? 'flex-end' : 'flex-start',
-                        marginTop: 8,
-                        borderRadius: 25,
-                        overflow: 'hidden',
-                        shadowColor: '#ff6b35',
-                        shadowOpacity: 0.4,
-                        shadowRadius: 8,
-                        shadowOffset: { width: 0, height: 4 },
-                        elevation: 4,
-                      }}>
-                      <LinearGradient
-                        colors={['#ff6b35', '#ff8c42']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                        style={{ paddingHorizontal: 14, paddingVertical: 5 }}>
-                        <Text
-                          style={{
-                            color: '#ffffff',
-                            fontSize: 12,
-                            fontWeight: '800',
-                            letterSpacing: 0.2,
-                          }}>
-                          {countLabel}
-                        </Text>
-                      </LinearGradient>
-                    </View>
+              <Pressable
+                key={c.city}
+                onPress={() => onSelect(active ? '' : c.city)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+                className="flex-row items-center active:opacity-80"
+                style={{ flexDirection: isAr ? 'row-reverse' : 'row', gap: 12 }}>
+                {/* Thumbnail */}
+                <View style={[{ borderRadius: 16 }, thumbShadow]}>
+                  <View
+                    style={{
+                      width: THUMB,
+                      height: THUMB,
+                      borderRadius: 16,
+                      overflow: 'hidden',
+                      borderWidth: active ? 2 : 0,
+                      borderColor: '#f1913d',
+                      backgroundColor: '#e8eaed',
+                    }}>
+                    {url ? (
+                      <Image
+                        source={{ uri: url }}
+                        style={{ width: '100%', height: '100%' }}
+                        contentFit="cover"
+                        transition={150}
+                      />
+                    ) : null}
                   </View>
-                </Pressable>
-              </View>
+                </View>
+
+                {/* Name + count */}
+                <View>
+                  <Text
+                    numberOfLines={1}
+                    className="text-secondary text-[16px] font-extrabold"
+                    style={{ letterSpacing: -0.3, textAlign: isAr ? 'right' : 'left' }}>
+                    {label}
+                  </Text>
+                  <Text
+                    numberOfLines={1}
+                    className="text-note text-[13px] font-medium mt-0.5"
+                    style={{ textAlign: isAr ? 'right' : 'left' }}>
+                    {countLabel}
+                  </Text>
+                </View>
+              </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
       )}
     </View>
   );

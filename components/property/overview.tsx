@@ -2,22 +2,57 @@ import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 
 import { CrownIcon, LocationIcon, StarIcon } from '@/components/icons/svg-icons';
+import { localizeCity } from '@/constants/cities';
+import { getCurrencySymbol } from '@/constants/currencies';
+import { localizePropertyType } from '@/constants/property-types';
+import { normalizeRentType } from '@/constants/rent-types';
 import type { ExtendedListing } from '@/apis/listing';
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-  SYP: 'ل.س',
-  AED: 'د.إ',
-  SAR: 'ر.س',
+// English → Arabic translations for property keyword pills.
+// Backend stores keywords in English; we localize for display.
+const KEYWORD_AR: Record<string, string> = {
+  'spacious': 'واسع',
+  'well-ventilated': 'مهوي',
+  'bright': 'مشمس',
+  'modern building': 'مبنى حديث',
+  'old building': 'مبنى قديم',
+  'south-facing house': 'قبلي (جنوبي)',
+  'south-facing': 'جنوبي',
+  'north-facing': 'شمالي',
+  'east-facing': 'شرقي',
+  'west-facing': 'غربي',
+  'view': 'إطلالة',
+  'open view': 'إطلالة مفتوحة',
+  'sea view': 'إطلالة بحرية',
+  'mountain view': 'إطلالة جبلية',
+  'luxury': 'فاخر',
+  'modern': 'حديث',
+  'furnished': 'مفروش',
+  'unfurnished': 'غير مفروش',
+  'cozy': 'مريح',
+  'renovated': 'مجدّد',
+  'new': 'جديد',
+  'doublex finishing': 'إكساء ديلوكس',
+  'super doublex finishing': 'إكساء سوبر ديلوكس',
+  'standard finishing': 'إكساء عادي',
+  'stone finishing': 'إكساء حجري',
+  'green title deed': 'طابو أخضر',
+  'shell house': 'بيت على العظم',
 };
 
-const formatPrice = (price?: number, currency?: string) => {
-  if (!price) return '—';
-  const code = (currency || 'USD').toUpperCase();
-  const symbol = CURRENCY_SYMBOLS[code] ?? '$';
-  return `${symbol}${price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+const translateKeyword = (raw: string, isAr: boolean) => {
+  const k = raw.trim();
+  if (!k) return '';
+  if (!isAr) return k;
+  return KEYWORD_AR[k.toLowerCase()] ?? k;
+};
+
+const parseKeywords = (raw?: string, isAr?: boolean): string[] => {
+  if (!raw) return [];
+  return raw
+    .split(',')
+    .map((k) => translateKeyword(k, !!isAr))
+    .filter(Boolean);
 };
 
 export function Overview({ listing }: { listing: ExtendedListing }) {
@@ -28,11 +63,17 @@ export function Overview({ listing }: { listing: ExtendedListing }) {
   const isRent = statusKey.includes('rent');
   const isSale = statusKey.includes('sale');
   const statusLabel = isRent ? t('hero.forRent') : isSale ? t('hero.forSale') : listing.status;
-  const city = listing.city ?? listing.state ?? '';
+  const city = localizeCity(listing.city ?? listing.state ?? '', i18n.language) || '';
   const neighborhood = (isAr && listing.neighborhood_ar) || listing.neighborhood || '';
   const address = (isAr && listing.address_ar) || listing.address || '';
   const fullLocation = [neighborhood, city, listing.country].filter(Boolean).join(' · ');
-  const rentSuffix = isRent ? ` / ${listing.rentType ?? 'month'}` : '';
+  const rentPeriodKey = normalizeRentType(listing.rentTypeOriginal || listing.rentType);
+  const rentSuffix = isRent
+    ? t(`properties.rentPeriod.${rentPeriodKey}`, { defaultValue: t('properties.rentPeriod.monthly') })
+    : '';
+  const localizedType = localizePropertyType(listing.propertyType, i18n.language) ?? listing.propertyType;
+  const priceCode = (listing.currency || 'USD').toUpperCase();
+  const keywordPills = parseKeywords(listing.propertyKeyword, isAr);
 
   return (
     <View className="px-5 pt-4">
@@ -75,22 +116,53 @@ export function Overview({ listing }: { listing: ExtendedListing }) {
       </View>
 
       {/* Price (Bayut leads with price, prominent) */}
-      <View className="flex-row items-baseline">
-        <Text
-          className="text-secondary text-[26px] font-extrabold"
-          style={{ letterSpacing: -0.6 }}>
-          {formatPrice(listing.propertyPrice, listing.currency)}
-        </Text>
+      <View className="flex-row items-center">
+        {listing.propertyPrice == null ? (
+          <Text className="text-secondary text-[26px] font-extrabold" style={{ letterSpacing: -0.6 }}>
+            N/A
+          </Text>
+        ) : (
+          <>
+            <Text
+              className="text-secondary text-[26px] font-extrabold"
+              style={{ letterSpacing: -0.6 }}>
+              {getCurrencySymbol(priceCode)}
+            </Text>
+            <Text
+              className="text-secondary text-[26px] font-extrabold ml-1"
+              style={{ letterSpacing: -0.6 }}>
+              {Number(listing.propertyPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+            </Text>
+          </>
+        )}
         {rentSuffix ? (
           <Text className="text-text text-[13px] font-medium ml-1">{rentSuffix}</Text>
         ) : null}
       </View>
 
+      {/* Keyword pills (Spacious, Well-ventilated, Bright, …) */}
+      {keywordPills.length > 0 ? (
+        <View className="flex-row flex-wrap gap-1.5 mt-2.5">
+          {keywordPills.map((kw, i) => (
+            <View
+              key={`${kw}-${i}`}
+              className="px-2.5 py-1 rounded-full"
+              style={{ backgroundColor: '#fff3e6', borderWidth: 1, borderColor: '#f1913d33' }}>
+              <Text className="text-primary text-[11px] font-semibold" style={{ letterSpacing: 0.2 }}>
+                {kw}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
       {/* Title */}
       <Text
         className="text-secondary text-[18px] font-bold leading-[24px] mt-2"
         style={{ letterSpacing: -0.3 }}>
-        {listing.propertyKeyword ?? listing.propertyType ?? 'Property'}
+        {(keywordPills.length > 0 ? localizedType : listing.propertyKeyword) ??
+          localizedType ??
+          'Property'}
       </Text>
 
       {/* Address */}

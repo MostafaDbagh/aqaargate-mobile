@@ -1,7 +1,7 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   I18nManager,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
@@ -9,30 +9,99 @@ import {
   ScrollView,
   Text,
   View,
+  type ViewStyle,
 } from 'react-native';
 
 import { useCategories } from '@/apis/hooks';
-import { CategoryIcon } from '@/components/icons/category-icons';
+import { ChipsRowSkeleton } from '@/components/skeletons/screen-skeletons';
+import { localizePropertyType } from '@/constants/property-types';
 
 import { SectionHeader } from './section-header';
 
-const ITEM_WIDTH = 130;
-const ITEM_GAP = 10;
+const ITEM_WIDTH = 160;
+const ITEM_GAP = 12;
 const STEP = ITEM_WIDTH + ITEM_GAP;
 const AUTOPLAY_DELAY_MS = 2500;
 const RESUME_AFTER_INTERACTION_MS = 5000;
 
-const PROPERTY_TYPE_AR: Record<string, string> = {
-  Apartment: 'شقة',
-  'Villa/Farms': 'فيلا/مزرعة',
-  Villa: 'فيلا',
-  Building: 'بناء',
-  Office: 'مكتب',
-  Commercial: 'تجاري',
-  Land: 'أرض',
-  'Holiday Home': 'بيت عطلات',
-  Chalet: 'شاليه',
+/** Soft lift for the unselected chips. */
+const chipShadow: ViewStyle = {
+  shadowColor: '#0f172a',
+  shadowOpacity: 0.06,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 1,
 };
+
+/** Simple frosted-glass surface for unselected chips. */
+const glassChip: ViewStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.6)',
+  borderWidth: 1,
+  borderColor: 'rgba(44, 46, 51, 0.08)',
+};
+
+/** Brand-orange glow under the selected (gradient) chip. */
+const activeShadow: ViewStyle = {
+  shadowColor: '#f1913d',
+  shadowOpacity: 0.35,
+  shadowRadius: 10,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 4,
+};
+
+/** Pill chip: gradient + glow when selected, frosted glass when not. */
+const CHIP_PAD = { paddingHorizontal: 24, paddingVertical: 14 } as const;
+
+function CategoryChip({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+      style={active ? activeShadow : undefined}>
+      {active ? (
+        <LinearGradient
+          colors={['#f6a85c', '#ed8a2e']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            borderRadius: 999,
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.4)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            ...CHIP_PAD,
+          }}>
+          <Text
+            numberOfLines={1}
+            className="text-white text-[15px] font-bold"
+            style={{ letterSpacing: -0.2 }}>
+            {label}
+          </Text>
+        </LinearGradient>
+      ) : (
+        <View
+          className="items-center justify-center"
+          style={[chipShadow, glassChip, { borderRadius: 999, ...CHIP_PAD }]}>
+          <Text
+            numberOfLines={1}
+            className="text-secondary text-[15px] font-bold"
+            style={{ letterSpacing: -0.2 }}>
+            {label}
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
 
 type Props = {
   activeName?: string;
@@ -99,15 +168,13 @@ export function CategoriesSection({ activeName, onSelect }: Props) {
       />
 
       {isLoading ? (
-        <View className="h-[100px] items-center justify-center">
-          <ActivityIndicator color="#f1913d" />
-        </View>
+        <ChipsRowSkeleton count={6} />
       ) : (
         <ScrollView
           ref={scrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, gap: ITEM_GAP }}
+          contentContainerStyle={{ paddingHorizontal: 20, gap: ITEM_GAP, alignItems: 'center' }}
           onLayout={(e) => {
             viewportWidthRef.current = e.nativeEvent.layout.width;
           }}
@@ -118,45 +185,31 @@ export function CategoriesSection({ activeName, onSelect }: Props) {
           onMomentumScrollBegin={pauseAutoplay}
           onScroll={handleScroll}
           scrollEventThrottle={32}>
+          {/* "All" — clears the type filter; active when nothing is selected. */}
+          <CategoryChip
+            label={t('categoriesSection.all')}
+            active={!activeName}
+            onPress={() => {
+              pauseAutoplay();
+              onSelect('');
+            }}
+          />
+
           {categories.map((c) => {
             const active = activeName === c.name;
-            const label = isAr ? PROPERTY_TYPE_AR[c.name] ?? c.displayName : c.displayName;
-            const countText = `${c.count} ${
-              c.count === 1 ? t('common.property') : t('common.properties')
-            }`;
+            const label = isAr
+              ? localizePropertyType(c.name, 'ar') ?? c.displayName
+              : c.displayName;
             return (
-              <Pressable
+              <CategoryChip
                 key={c.slug}
+                label={label}
+                active={active}
                 onPress={() => {
                   pauseAutoplay();
                   onSelect(active ? '' : c.name);
                 }}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-                className={`rounded-xl px-3 py-4 items-center bg-white ${
-                  active ? 'border-2 border-primary' : 'border border-line'
-                }`}
-                style={{
-                  width: ITEM_WIDTH,
-                  shadowColor: '#0f172a',
-                  shadowOpacity: 0.04,
-                  shadowRadius: 8,
-                  shadowOffset: { width: 0, height: 2 },
-                  elevation: 1,
-                }}>
-                <View className="w-14 h-14 rounded-2xl items-center justify-center mb-2">
-                  <CategoryIcon name={c.name} size={38} color="#f1913d" />
-                </View>
-                <Text
-                  numberOfLines={1}
-                  className="text-[14px] font-bold text-center text-secondary"
-                  style={{ letterSpacing: -0.2 }}>
-                  {label}
-                </Text>
-                <Text className="text-[11px] mt-0.5 font-medium text-note">
-                  {countText}
-                </Text>
-              </Pressable>
+              />
             );
           })}
         </ScrollView>

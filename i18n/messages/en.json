@@ -1,4 +1,30 @@
 {
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "haveAccount": "I Already Have an Account",
+    "slides": [
+      {
+        "title": "Find Your Perfect Property with AI",
+        "desc": "Tell AqaarGate what you need in plain Arabic or English — and get matching homes in seconds, no endless scrolling.",
+        "chipPrimary": "3-bedroom near the sea",
+        "chipSecondary": "Lattakia · $85,000"
+      },
+      {
+        "title": "Verified Listings Across Syria",
+        "desc": "Browse trusted properties for sale and rent in Damascus, Lattakia, Aleppo, Homs and Tartous — every listing checked.",
+        "chipPrimary": "Verified listing",
+        "chipSecondary": "5 cities & growing"
+      },
+      {
+        "title": "Connect Directly with Verified Agents",
+        "desc": "Browse verified agent profiles, read real reviews, and chat directly — no middlemen, no hidden fees.",
+        "chipPrimary": "Verified agent",
+        "chipSecondary": "★ 4.9 · 120 reviews"
+      }
+    ]
+  },
   "hero": {
     "tag": "AqaarGate · Syria",
     "title": "Find your next home in Syria.",
@@ -10,6 +36,10 @@
     "searchPlaceholder": "Describe your dream property...",
     "searchButton": "Search",
     "send": "Send",
+    "aiSearchHint": "Type naturally: how many rooms, which city, your budget — we'll do the rest. Here are some examples:",
+    "tag1": "AI-powered search",
+    "tag2": "Verified listings",
+    "tag3": "Across major Syrian cities",
     "filters": "Filters",
     "filtersTitle": "Filters",
     "filtersTooltip": "Open advanced filters",
@@ -29,15 +59,42 @@
     "error": "Couldn't load properties.",
     "retry": "Try again",
     "beds": "Beds",
-    "baths": "Baths"
+    "baths": "Baths",
+    "titleSaleOnly": "Properties for Sale in Syria",
+    "titleRentOnly": "Properties for Rent in Syria",
+    "holidayHomesListings": "Holiday Homes",
+    "searchResults": "Search Results",
+    "compareShort": "Compare",
+    "occupied": "Occupied",
+    "availableAfter": "Available after {{date}}",
+    "rentPeriod": {
+      "daily": "/ day",
+      "weekly": "/ week",
+      "monthly": "/ month",
+      "three-month": "/ 3 months",
+      "six-month": "/ 6 months",
+      "one-year": "/ year",
+      "yearly": "/ year"
+    }
   },
   "common": {
     "property": "property",
     "properties": "properties"
   },
+  "home": {
+    "browseByCity": "Browse by city",
+    "summerEyebrow": "☀️ This Summer",
+    "summerHeadline": "Summer Season",
+    "summerSubhead": "Daily-rent villas, farms & chalets across Syria",
+    "summerCta": "Explore daily rentals",
+    "holidayHomesTitle": "Holiday Homes",
+    "holidayHomesSubtitle": "Villas, farms & chalets for daily rental",
+    "viewAll": "View all"
+  },
   "categoriesSection": {
     "title": "Browse by property type",
-    "subtitle": "Apartments, villas, lands, and more across Syria"
+    "subtitle": "Apartments, villas, lands, and more across Syria",
+    "all": "All"
   },
   "citiesSection": {
     "title": "Explore Syria Cities Offerings",
@@ -223,59 +280,59 @@
     "questions": {
       "whyChooseOurService": {
         "title": "Why Choose Our Service?",
-        "answer": "Discover a modern and elegant way to showcase real estate in Syria. Our platform is designed to present every property with clarity, sophistication, and professionalism, ensuring that all details about the property and its owner are easily accessible — no extra explanations needed.\n\nWe do not act as intermediaries between buyers and sellers. Our role is simply to provide a trusted, transparent space where listings can be displayed beautifully and efficiently.\n\nWhether you're in Syria or living abroad, our platform makes it easy to browse, explore, and choose your future home from anywhere in the world."
+        "answer": "Discover a modern and elegant way to showcase real estate in Syria. Our platform is designed to present every property with clarity, sophistication, and professionalism, ensuring that all details about the property and its owner are easily accessible — no extra explanations needed.\n\nWe do not act as intermediaries between buyers and sellers. Our role is simply to provide a trusted, transparent space where listings can be displayed beautifully and efficiently.\n\nWhether you're in Syria or living abroad, our platform makes it easy to browse, explore, and choose your future home from anywhere in the world. With a sleek design and user-friendly experience, finding your dream property has never been simpler."
       },
       "howSecureAreYourServices": {
         "title": "How Secure Are Your Services?",
-        "answer": "Your security is our top priority. We use advanced technologies to keep your data and account safe, including password encryption with bcrypt, JWT authentication, and protected APIs. Access to features and data is controlled through role-based permissions, and all communications occur over secure HTTPS connections."
+        "answer": "Your security is our top priority. We use advanced technologies to keep your data and account safe, including password encryption with bcrypt, JWT authentication, and protected APIs. Access to features and data is controlled through role-based permissions (for users and agents), and all communications occur over secure HTTPS connections. We also ensure secure token storage and transmission to maintain complete protection at every step."
       },
       "customerSupportService": {
         "title": "Customer Support Service",
-        "answer": "We're here for you — anytime, anywhere. Our customer support team is available 24/7, ready to help with any inquiries or issues. You can also reach us through our dedicated complaints email, and we'll respond within 24 hours."
+        "answer": "We're here for you — anytime, anywhere. Our customer support team is available 24/7, ready to help with any inquiries or issues you may have. You can also reach us through our dedicated complaints email, and we'll make sure to respond within 24 hours."
       },
       "howCanIUpdateMyAccountInformation": {
         "title": "How Can I Update My Account Information?",
-        "answer": "Updating your account information is quick, simple, and secure. You can make changes directly through your profile, and no additional approval is required.\n\nIf any major updates occur, we'll notify you in advance via in-app notifications and email alerts."
+        "answer": "Updating your account information is quick, simple, and secure. You can easily make any changes directly through your user dashboard, and no additional approval is required.\n\nIf any major updates or changes occur, we'll make sure to notify you in advance via in-app notifications and email alerts, so you're always informed and up to date with your account details."
       },
       "howDoYouCalculateFees": {
         "title": "How Do You Calculate Fees?",
-        "answer": "Our platform is completely free for the first six months. If we introduce any fees in the future, we'll give you a full month's notice via email and our communication channels."
+        "answer": "Good news! Our platform is completely free for the first six months. If we introduce any fees in the future, we'll give you a full month's notice via email and our communication channels, so you'll always be informed in advance."
       },
       "howDoIPayMyInvoices": {
         "title": "How Do I Pay My Invoices?",
-        "answer": "You can pay your invoices via bank transfer through Al-Haram or any money transfer center. Once confirmed, points are added to your account. Sertel Cash and MTN Cash are also supported. The process usually takes no more than 3 hours."
+        "answer": "You can pay your invoices via bank transfer through Al-Haram or any money transfer center. Once the payment is confirmed, your points will be added to your account. You can also pay using Sertel Cash or MTN Cash. This process is fast and usually takes no more than 3 hours."
       },
       "areThereAnyHiddenFees": {
-        "title": "Are There Any Hidden Fees?",
-        "answer": "No. Everything is transparent and clearly displayed. We do not take any commission between buyers and sellers — we simply provide a platform to showcase properties. If anything changes, all users are notified at least one month in advance."
+        "title": "Are There Any Hidden Fees Not Displayed In The Pricing Table?",
+        "answer": "No, there are no hidden fees on our platform. Everything is transparent and clearly displayed, which is one of the key standards we pride ourselves on. We do not take any commission between buyers and sellers—we simply provide a modern, professional platform to showcase properties and holiday homes. If any changes occur, all users will be notified at least one month in advance."
       },
       "whatIsTheRefundProcedure": {
         "title": "What Is The Refund Procedure?",
-        "answer": "This feature will be available soon. Full details on how to request a refund will be provided once it's launched."
+        "answer": "This feature will be available soon. We'll provide full details on how to request a refund once it's launched."
       },
       "isThereFinancialOrAccountingSupport": {
         "title": "Is There Financial Or Accounting Support?",
-        "answer": "Yes. Our dedicated financial support team is here to help, and your funds and points are always safe and fully protected."
+        "answer": "Absolutely! Our dedicated financial support team is here to help. Rest assured, your funds and points are always safe and fully protected."
       },
       "whatLanguagesDoesYourServiceSupport": {
         "title": "What Languages Does Your Service Support?",
-        "answer": "Our service currently supports English and Arabic."
+        "answer": "Our platform fully supports both Arabic and English. You can switch between the two languages at any time."
       },
       "whatAreTheSafetyFeatures": {
-        "title": "What Are The Safety Features?",
-        "answer": "Our platform implements comprehensive security protocols:\n\nJWT-based authentication for secure, stateless sessions.\n\nEncrypted password storage using strong hashing algorithms.\n\nAuthorized API access requiring valid tokens.\n\nRole-based access control (RBAC) for fine-grained permissions.\n\nHTTPS data transmission for all communications.\n\nAuthorization enforcement: users can only access their own resources."
+        "title": "What Are The Safety Features Of Your System?",
+        "answer": "Our platform implements comprehensive security protocols to protect users and data:\n\nJWT-Based Authentication: Secure and stateless user sessions.\n\nEncrypted Password Storage: Passwords stored using strong hashing algorithms.\n\nAuthorized API Access: Protected API endpoints requiring valid tokens.\n\nRole-Based Access Control (RBAC): Fine-grained permissions for agents and regular users.\n\nHTTPS Data Transmission: All data transmitted securely over encrypted channels.\n\nAuthorization Enforcement: Users can only access or modify their own resources.\n\nSecure Critical Operations: Sensitive actions like creating, updating, or deleting listings require verified authentication."
       },
       "howCanIRequestNewFeatures": {
         "title": "How Can I Request New Features?",
-        "answer": "We love hearing from you. Share your ideas in any of these ways:\n\nCall us at the phone number listed on the Contact page.\n\nEmail us at the address on the same page.\n\nFill out the form on our website to send a feature request directly."
+        "answer": "We love hearing from you! Whether it's a suggestion or constructive feedback, your ideas help us make the platform better. You can share your requests in any of these ways:\n\nCall Us: Reach us at the phone number listed on our Contact Us page.\n\nEmail Us: Send your ideas to the email address on the same page.\n\nSubmit a Form: Fill out the form on our website to send your feature request or suggestion directly.\n\nYour feedback matters, and we're always excited to bring new features to life based on what our users need!"
       },
       "isMyDataProtected": {
         "title": "Is My Data Protected?",
-        "answer": "Yes. Passwords are securely hashed, communications are encrypted, and only authorized users can access sensitive information. We use multiple layers of security to keep your data private."
+        "answer": "Absolutely! Your data is safe with us. Passwords are securely hashed, all communications are encrypted, and only authorized users can access sensitive info. From personal details to property listings, we use multiple layers of security to keep your information private and protected."
       },
       "havingTechnicalIssues": {
         "title": "Having Technical Issues?",
-        "answer": "Report it via phone, email, or our website form, and our team will help you get back on track."
+        "answer": "Report it quickly via phone, email, or our website form, and our team will help you get back on track."
       }
     }
   },
@@ -312,8 +369,8 @@
     "clearAll": "Clear all"
   },
   "amenities": {
-    "solarEnergySystem": "Solar energy",
-    "starLinkInternet": "Star Link internet",
+    "solarEnergySystem": "Solar energy system",
+    "starLinkInternet": "Star link internet",
     "fiberInternet": "Fiber internet",
     "basicInternet": "Basic internet",
     "parking": "Parking",
@@ -449,7 +506,13 @@
     "createAccount": "Send verification code",
     "creatingAccount": "Sending...",
     "alreadyHaveAccount": "Already have an account?",
-    "login": "Sign in"
+    "login": "Sign in",
+    "passwordStrength": {
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    }
   },
   "forgotPassword": {
     "title": "Forgot password",
@@ -549,38 +612,38 @@
     "headerTitle": "Rental service",
     "heroTitle": "Property Rental Management Service",
     "heroSubtitle": "Let AqaarGate handle your property rental needs with our comprehensive, professional management service.",
-    "howItWorks": "How it works",
+    "howItWorks": "How It Works",
     "submitProperty": {
-      "title": "Submit your property details",
-      "text": "Fill out the property form with type, size, bedrooms, bathrooms, features, and location."
+      "title": "Submit Your Property Details",
+      "text": "Fill out our comprehensive property submission form with all relevant details including property type, size, bedrooms, bathrooms, features, and location."
     },
     "propertyInspection": {
-      "title": "Property inspection",
-      "text": "Our team will visit your property for a thorough inspection and assessment."
+      "title": "Property Inspection",
+      "text": "Our professional team will visit your property to conduct a thorough inspection and assessment."
     },
     "agreementFinalization": {
-      "title": "Agreement finalization",
-      "text": "We finalize the rental agreement, including duration, price, and commission terms (minimum 20% commission)."
+      "title": "Agreement Finalization",
+      "text": "After inspection, we'll finalize the rental agreement, including rental duration, rental price, and commission terms (minimum 20% commission)."
     },
     "managementBegins": {
-      "title": "Property management begins",
-      "text": "Once signed, we take over management, maintenance, and rental operations to keep your property earning."
+      "title": "Property Management Begins",
+      "text": "Once the agreement is signed, we take over property management, maintenance, and rental operations, ensuring your property is well-maintained and generating income."
     },
-    "commissionStructure": "Commission structure",
-    "commissionText": "We charge a minimum commission of",
+    "commissionStructure": "Commission Structure",
+    "commissionText": "Our company charges a minimum commission of",
     "commissionPercent": "20%",
-    "commissionText2": "of the rental amount. Additional terms can be negotiated between both parties.",
-    "agreementTerms": "Agreement terms include:",
-    "agreementTermsText": "Rental duration, price, commission percentage, maintenance responsibilities, and any negotiated terms.",
+    "commissionText2": "of the rental amount. Additional terms and details can be negotiated between both parties to ensure a mutually beneficial agreement.",
+    "agreementTerms": "Agreement Terms Include:",
+    "agreementTermsText": "Rental duration, rental price, commission percentage, maintenance responsibilities, and any additional negotiated terms.",
     "formTitle": "Submit your property",
-    "formSubtitle": "Fill out the form below to get started with our property rental management service.",
-    "ownerName": "Owner name",
+    "formSubtitle": "Fill out the form below to get started with our property rental management service",
+    "ownerName": "Owner Name",
     "ownerNamePlaceholder": "Your full name",
     "ownerEmail": "Email address",
     "ownerEmailPlaceholder": "you@example.com",
     "ownerPhone": "Phone number",
     "ownerPhonePlaceholder": "Your phone number",
-    "propertyType": "Property type",
+    "propertyType": "Property Type",
     "selectPropertyType": "Select property type",
     "propertyTypes": {
       "apartment": "Apartment",
@@ -592,7 +655,7 @@
       "shop": "Shop",
       "other": "Other"
     },
-    "propertySize": "Property size (sqft)",
+    "propertySize": "Property Size (Sqft)",
     "propertySizePlaceholder": "e.g., 1200",
     "bedrooms": "Bedrooms",
     "bedroomsPlaceholder": "e.g., 3",
@@ -601,11 +664,11 @@
     "location": "Property location",
     "locationPlaceholder": "e.g., Damascus, Al-Mazzeh, Main Street",
     "features": "Property features",
-    "featuresPlaceholder": "Describe features (furnished, parking, garden, balcony, etc.)",
-    "additionalDetails": "Additional details",
-    "additionalDetailsPlaceholder": "Any extra info about your property or rental preferences…",
+    "featuresPlaceholder": "Describe your property features (e.g., furnished, parking, garden, balcony, etc.)",
+    "additionalDetails": "Additional Details (Optional)",
+    "additionalDetailsPlaceholder": "Any additional information about your property or rental preferences...",
     "submit": "Submit property",
-    "submitting": "Submitting…",
+    "submitting": "Submitting...",
     "successTitle": "Request submitted",
     "successBody": "Your request has been submitted. Our team will contact you shortly to schedule a property inspection.",
     "errorTitle": "Couldn't submit",
@@ -665,12 +728,12 @@
   "contact": {
     "headerTitle": "Contact",
     "title": "We Would Love to Hear From You",
-    "subtitle": "We'd like to hear from you to ensure we provide a good and satisfactory service.",
-    "name": "Name",
+    "subtitle": "We would like to hear from you to ensure we provide a good and satisfactory service.",
+    "name": "Name:",
     "namePlaceholder": "Your name",
-    "email": "Email",
-    "emailPlaceholder": "you@example.com",
-    "phoneNumber": "Phone number",
+    "email": "Email:",
+    "emailPlaceholder": "Email",
+    "phoneNumber": "Phone number:",
     "phonePlaceholder": "Your phone number",
     "interestedIn": "What are you interested in?",
     "selectOption": "Select",
@@ -684,8 +747,8 @@
     "complain": "Complain",
     "query": "Query",
     "location": "Location",
-    "yourMessage": "Your message",
-    "messagePlaceholder": "Tell us how we can help…",
+    "yourMessage": "Your Message:",
+    "messagePlaceholder": "Message",
     "contactExperts": "Contact our experts",
     "sending": "Sending…",
     "successTitle": "Message sent",

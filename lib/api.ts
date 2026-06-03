@@ -68,6 +68,18 @@ export type Listing = {
   address_ar?: string;
   images?: ListingImage[];
   isFeatured?: boolean;
+  // Rent / availability (mirrors aqaarGateBE2 listing.model.js)
+  rentType?: string;
+  rentTypeOriginal?: string;
+  isOccupied?: boolean;
+  availableAfter?: string | null;
+  isHolidayHome?: boolean;
+  isVip?: boolean;
+  // Location / agent extras present on populated search results
+  neighborhood?: string;
+  neighborhood_ar?: string;
+  agentNumber?: string;
+  agentWhatsapp?: string;
 };
 
 export type SearchParams = {
@@ -76,6 +88,7 @@ export type SearchParams = {
   sort?: string;
   keyword?: string;
   status?: string;
+  rentType?: string;
   propertyType?: string;
   city?: string;
   state?: string;
@@ -112,6 +125,43 @@ export async function searchListings(params: SearchParams = {}): Promise<Listing
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.data)) return data.data;
   return [];
+}
+
+export type AiSearchResult = ListingSearchResult & {
+  extractedParams?: Record<string, unknown>;
+};
+
+/**
+ * AI natural-language search — POST /listing/ai-search with the raw query.
+ * Mirrors the web `aiSearchProperties`; the backend extracts structured params
+ * and returns matched listings. Callers should fall back to keyword search.
+ */
+export async function aiSearchListings(
+  query: string,
+  params: { page?: number; limit?: number } = {}
+): Promise<AiSearchResult> {
+  const limit = Number(params.limit ?? 20);
+  const page = Number(params.page ?? 1);
+  const { data } = await Axios.post('/listing/ai-search', { query }, { params: { page, limit } });
+  const listings: Listing[] = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.data)
+      ? data.data
+      : [];
+  const total = Number(data?.pagination?.total ?? listings.length);
+  const totalPages = Number(data?.pagination?.totalPages ?? Math.max(1, Math.ceil(total / limit)));
+  return {
+    data: listings,
+    pagination: {
+      page: Number(data?.pagination?.page ?? page),
+      limit: Number(data?.pagination?.limit ?? limit),
+      total,
+      totalPages,
+      hasNextPage: data?.pagination?.hasNextPage ?? page < totalPages,
+      hasPrevPage: data?.pagination?.hasPrevPage ?? page > 1,
+    },
+    extractedParams: data?.extractedParams,
+  };
 }
 
 export async function searchListingsPaginated(
