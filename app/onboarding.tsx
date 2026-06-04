@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { resolveCityImageUrl } from '@/apis/city';
+import { useCities } from '@/apis/hooks';
 import { OnboardingDots } from '@/components/onboarding/onboarding-dots';
 import {
   OnboardingSlide,
@@ -24,7 +26,7 @@ import { markOnboardingSeen } from '@/lib/onboarding';
 
 const ICONS: SlideIconKind[] = ['sparkles', 'shield', 'chat'];
 
-type RawSlide = Pick<OnboardingSlideData, 'title' | 'desc' | 'chipPrimary' | 'chipSecondary'>;
+type RawSlide = Pick<OnboardingSlideData, 'title' | 'desc'>;
 
 const TABS_HREF = '/(tabs)' as Href;
 const LOGIN_HREF = '/(auth)/login' as Href;
@@ -39,12 +41,27 @@ export default function OnboardingScreen() {
   const [index, setIndex] = useState(0);
   const [pageH, setPageH] = useState(0);
 
+  // Real Syrian city photos (from our own backend) for the photo slides — no
+  // random stock imagery, no fabricated stats. The agents slide (the last one)
+  // shows the AqaarGate logo instead of an unrelated cityscape.
+  const { data: cities = [] } = useCities();
+  const cityImages = cities
+    .map((c) => resolveCityImageUrl(c.imageSrc))
+    .filter((u): u is string => !!u);
+
   const raw = t('onboarding.slides', { returnObjects: true }) as RawSlide[] | string;
-  const slides: OnboardingSlideData[] = (Array.isArray(raw) ? raw : []).map((s, i) => ({
-    key: `slide-${i}`,
-    icon: ICONS[i] ?? 'sparkles',
-    ...s,
-  }));
+  const rawSlides = Array.isArray(raw) ? raw : [];
+  const lastIndex = rawSlides.length - 1;
+  const slides: OnboardingSlideData[] = rawSlides.map((s, i) => {
+    const useLogo = i === lastIndex;
+    return {
+      key: `slide-${i}`,
+      icon: ICONS[i] ?? 'sparkles',
+      useLogo,
+      image: useLogo || !cityImages.length ? null : cityImages[i % cityImages.length],
+      ...s,
+    };
+  });
 
   const isLast = index >= slides.length - 1;
 

@@ -23,6 +23,7 @@ import {
 import { useToast } from '@/components/feedback/toast';
 import { PhoneInput } from '@/components/forms/phone-input';
 import { CloseIcon } from '@/components/icons/svg-icons';
+import { ScreenHeading } from '@/components/sections/screen-heading';
 import { getApiErrorMessage } from '@/lib/api';
 
 const PROPERTY_TYPES: PropertyRentalType[] = [
@@ -185,16 +186,10 @@ export default function RentalServiceScreen() {
             <View className="w-14 h-14 rounded-2xl bg-primary/10 items-center justify-center mb-3">
               <Ionicons name="home" size={28} color="#f1913d" />
             </View>
-            <Text
-              className="text-secondary text-[22px] font-extrabold tracking-tight"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('rentalService.heroTitle')}
-            </Text>
-            <Text
-              className="text-text text-[13px] mt-2 leading-[20px]"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('rentalService.heroSubtitle')}
-            </Text>
+            <ScreenHeading
+              title={t('rentalService.heroTitle')}
+              subtitle={t('rentalService.heroSubtitle')}
+            />
           </View>
 
           {/* How it works */}

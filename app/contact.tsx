@@ -20,6 +20,7 @@ import { contactAPI, type ContactPayload } from '@/apis/contact';
 import { useToast } from '@/components/feedback/toast';
 import { PhoneInput } from '@/components/forms/phone-input';
 import { CloseIcon } from '@/components/icons/svg-icons';
+import { ScreenHeading } from '@/components/sections/screen-heading';
 import { getApiErrorMessage } from '@/lib/api';
 
 const INTEREST_KEYS = [
@@ -170,16 +171,7 @@ export default function ContactScreen() {
           keyboardShouldPersistTaps="handled">
           {/* Heading */}
           <View className="px-5 pt-6">
-            <Text
-              className="text-secondary text-[24px] font-extrabold tracking-tight"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('contact.title')}
-            </Text>
-            <Text
-              className="text-text text-[13px] mt-2 leading-[20px]"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('contact.subtitle')}
-            </Text>
+            <ScreenHeading title={t('contact.title')} subtitle={t('contact.subtitle')} />
           </View>
 
           {/* Form */}
@@ -295,16 +287,10 @@ export default function ContactScreen() {
 
           {/* About / contact info */}
           <View className="mt-10 px-5 pt-6 pb-2 border-t border-line">
-            <Text
-              className="text-secondary text-[20px] font-extrabold tracking-tight"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('contact.about.title')}
-            </Text>
-            <Text
-              className="text-text text-[13px] mt-2 leading-[20px]"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('contact.about.subtitle')}
-            </Text>
+            <ScreenHeading
+              title={t('contact.about.title')}
+              subtitle={t('contact.about.subtitle')}
+            />
 
             <View className="mt-5 gap-3">
               <InfoRow

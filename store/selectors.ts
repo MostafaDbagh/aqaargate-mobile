@@ -6,3 +6,6 @@ export const selectIsAuthenticated = (s: RootState) => s.auth.isAuthenticated;
 export const selectIsAgent = (s: RootState) => s.auth.isAgent;
 export const selectUserDisplayName = (s: RootState) =>
   s.auth.user?.username ?? 'Guest';
+
+export const selectCompareItems = (s: RootState) => s.compare.items;
+export const selectCompareCount = (s: RootState) => s.compare.items.length;

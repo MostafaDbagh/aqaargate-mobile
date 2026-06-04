@@ -34,7 +34,9 @@ export default function AgentsScreen() {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   const { data, isLoading, isError, refetch, isRefetching } = useAgents();
-  const agents = (data ?? []) as Agent[];
+  // Memoize so the reference is stable across renders (a bare `data ?? []`
+  // makes a fresh array each render, defeating the `filtered` useMemo below).
+  const agents = useMemo(() => (data ?? []) as Agent[], [data]);
 
   const filtered = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();

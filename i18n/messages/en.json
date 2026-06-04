@@ -7,21 +7,15 @@
     "slides": [
       {
         "title": "Find Your Perfect Property with AI",
-        "desc": "Tell AqaarGate what you need in plain Arabic or English — and get matching homes in seconds, no endless scrolling.",
-        "chipPrimary": "3-bedroom near the sea",
-        "chipSecondary": "Lattakia · $85,000"
+        "desc": "Tell AqaarGate what you need in plain Arabic or English — and get matching homes in seconds, no endless scrolling."
       },
       {
         "title": "Verified Listings Across Syria",
-        "desc": "Browse trusted properties for sale and rent in Damascus, Lattakia, Aleppo, Homs and Tartous — every listing checked.",
-        "chipPrimary": "Verified listing",
-        "chipSecondary": "5 cities & growing"
+        "desc": "Browse trusted properties for sale and rent in Damascus, Lattakia, Aleppo, Homs and Tartous — every listing checked."
       },
       {
         "title": "Connect Directly with Verified Agents",
-        "desc": "Browse verified agent profiles, read real reviews, and chat directly — no middlemen, no hidden fees.",
-        "chipPrimary": "Verified agent",
-        "chipSecondary": "★ 4.9 · 120 reviews"
+        "desc": "Browse verified agent profiles, read real reviews, and chat directly — no middlemen, no hidden fees."
       }
     ]
   },
@@ -831,5 +825,44 @@
       "whatsappNumberLabel": "WhatsApp number",
       "emailAddressLabel": "Email address"
     }
+  },
+  "blog": {
+    "title": "Blog",
+    "readMore": "Read more",
+    "by": "By",
+    "backToBlog": "Back to blog",
+    "noBlogs": "No articles yet",
+    "notFound": "Article not found",
+    "errorLoading": "Couldn't load articles",
+    "retry": "Retry"
+  },
+  "compare": {
+    "compare": "Compare",
+    "added": "Added",
+    "compareNow": "Compare ({{count}})",
+    "selectedCount": "{{count}} of {{max}} selected",
+    "clearAll": "Clear all",
+    "limit": "You can compare up to {{count}} properties",
+    "toastAdded": "Added to comparison",
+    "toastRemoved": "Removed from comparison",
+    "emptyTitle": "Nothing to compare yet",
+    "emptyText": "Add up to 3 properties to compare them side by side.",
+    "browseListings": "Browse listings",
+    "viewDetails": "View",
+    "priceOnRequest": "On request",
+    "sectionSpecs": "Specifications",
+    "sectionLocation": "Location",
+    "sectionAmenities": "Amenities",
+    "propertyType": "Type",
+    "status": "Status",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "size": "Size",
+    "floor": "Floor",
+    "yearBuilt": "Year built",
+    "furnished": "Furnished",
+    "garages": "Garages",
+    "city": "City",
+    "neighborhood": "Neighborhood"
   }
 }

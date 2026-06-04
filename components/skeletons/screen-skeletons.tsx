@@ -74,7 +74,7 @@ export function ChipsRowSkeleton({ count = 6 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <SkeletonBlock
           key={i}
-          style={{ width: i === 0 ? 64 : 116, height: 46, borderRadius: 16 }}
+          style={{ width: i === 0 ? 84 : 124, height: 46, borderRadius: 999 }}
         />
       ))}
       <ShimmerOverlay />

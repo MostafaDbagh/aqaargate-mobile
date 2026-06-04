@@ -25,6 +25,7 @@ import {
 import { useToast } from '@/components/feedback/toast';
 import { PhoneInput } from '@/components/forms/phone-input';
 import { CloseIcon } from '@/components/icons/svg-icons';
+import { ScreenHeading } from '@/components/sections/screen-heading';
 import { PROPERTY_TYPES } from '@/constants/property-types';
 import { getApiErrorMessage } from '@/lib/api';
 
@@ -213,16 +214,10 @@ export default function InterestedBuyerScreen() {
           keyboardShouldPersistTaps="handled">
           {/* Hero */}
           <View className="px-5 pt-6">
-            <Text
-              className="text-secondary text-[22px] font-extrabold tracking-tight"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('interestedBuyer.heroTitle')}
-            </Text>
-            <Text
-              className="text-text text-[13px] mt-2 leading-[20px]"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('interestedBuyer.heroSubtitle')}
-            </Text>
+            <ScreenHeading
+              title={t('interestedBuyer.heroTitle')}
+              subtitle={t('interestedBuyer.heroSubtitle')}
+            />
           </View>
 
           <View className="px-5 mt-6">

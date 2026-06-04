@@ -1,12 +1,25 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 
+import type { Listing } from '@/lib/api';
 import { clearCredentials, persistCredentials } from '@/store/persist';
-import { selectIsAuthenticated } from '@/store/selectors';
-import { useAppSelector } from '@/store/store';
+import { selectCompareItems, selectIsAuthenticated } from '@/store/selectors';
+import {
+  MAX_COMPARE,
+  addToCompare,
+  clearCompare,
+  removeFromCompare,
+} from '@/store/slices/compare-slice';
+import { useAppDispatch, useAppSelector } from '@/store/store';
 
 import { agentAPI } from './agent';
 import { authAPI, type OtpType, type SigninPayload, type SignupPayload } from './auth';
+import { blogAPI, type BlogListParams } from './blog';
 import { categoryAPI } from './category';
 import { cityAPI } from './city';
 import { favoriteAPI, extractFavoriteId } from './favorites';
@@ -193,4 +206,65 @@ export function useToggleFavorite() {
       favorited ? favoriteAPI.remove(id) : favoriteAPI.add(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['favorites'] }),
   });
+}
+
+// ---- Blogs ----
+
+const BLOG_PAGE_SIZE = 10;
+
+/** Paginated published blogs with "load more" support. */
+export function useBlogsInfinite(params: BlogListParams = {}) {
+  return useInfiniteQuery({
+    queryKey: ['blogs', 'infinite', params],
+    queryFn: ({ pageParam }) =>
+      blogAPI.list({ ...params, page: pageParam, limit: BLOG_PAGE_SIZE }),
+    initialPageParam: 1,
+    getNextPageParam: (last) =>
+      last.pagination.hasNextPage ? last.pagination.page + 1 : undefined,
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+/** Single blog by Mongo id or (locale) slug. */
+export function useBlog(idOrSlug: string | undefined) {
+  return useQuery({
+    queryKey: ['blog', idOrSlug],
+    queryFn: () => blogAPI.getById(idOrSlug as string),
+    enabled: !!idOrSlug,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ---- Compare (max 3 listings, persisted) ----
+
+export type ToggleCompareResult = { action: 'added' | 'removed' | 'limit' };
+
+/**
+ * Compare-selection helper. Mirrors the web CompareContext: add/remove/toggle a
+ * listing, capped at MAX_COMPARE. Backed by the persisted redux `compare` slice.
+ */
+export function useCompare() {
+  const dispatch = useAppDispatch();
+  const items = useAppSelector(selectCompareItems);
+  const ids = useMemo(() => new Set(items.map((i) => i._id)), [items]);
+
+  const isInCompare = useCallback((id: string) => ids.has(id), [ids]);
+
+  const toggle = useCallback(
+    (listing: Listing): ToggleCompareResult => {
+      if (ids.has(listing._id)) {
+        dispatch(removeFromCompare(listing._id));
+        return { action: 'removed' };
+      }
+      if (items.length >= MAX_COMPARE) return { action: 'limit' };
+      dispatch(addToCompare(listing));
+      return { action: 'added' };
+    },
+    [dispatch, ids, items.length]
+  );
+
+  const remove = useCallback((id: string) => dispatch(removeFromCompare(id)), [dispatch]);
+  const clear = useCallback(() => dispatch(clearCompare()), [dispatch]);
+
+  return { items, count: items.length, max: MAX_COMPARE, isInCompare, toggle, remove, clear };
 }

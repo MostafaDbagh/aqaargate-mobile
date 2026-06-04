@@ -1,4 +1,4 @@
-import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -9,7 +9,6 @@ import {
   ScrollView,
   Text,
   View,
-  type ViewStyle,
 } from 'react-native';
 
 import { useCategories } from '@/apis/hooks';
@@ -24,41 +23,43 @@ const STEP = ITEM_WIDTH + ITEM_GAP;
 const AUTOPLAY_DELAY_MS = 2500;
 const RESUME_AFTER_INTERACTION_MS = 5000;
 
-/** Soft lift for the unselected chips. */
-const chipShadow: ViewStyle = {
-  shadowColor: '#0f172a',
-  shadowOpacity: 0.06,
-  shadowRadius: 8,
-  shadowOffset: { width: 0, height: 2 },
-  elevation: 1,
+type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+/** Icon per canonical property-type `name` (English key works in both locales). */
+const TYPE_ICON: Record<string, IconName> = {
+  Apartment: 'home-city-outline',
+  Villa: 'home-outline',
+  Building: 'office-building-outline',
+  Office: 'briefcase-outline',
+  Commercial: 'storefront-outline',
+  Land: 'terrain',
+  'Holiday Home': 'beach',
+  Chalet: 'home-roof',
+  // Legacy / synonym values that may still appear in BE data.
+  House: 'home-outline',
+  Studio: 'bed-outline',
+  Farm: 'barn',
+  Duplex: 'home-city-outline',
+  Penthouse: 'home-city-outline',
+  Warehouse: 'warehouse',
+  Shop: 'storefront-outline',
+  Store: 'storefront-outline',
 };
 
-/** Simple frosted-glass surface for unselected chips. */
-const glassChip: ViewStyle = {
-  backgroundColor: 'rgba(255, 255, 255, 0.6)',
-  borderWidth: 1,
-  borderColor: 'rgba(44, 46, 51, 0.08)',
-};
-
-/** Brand-orange glow under the selected (gradient) chip. */
-const activeShadow: ViewStyle = {
-  shadowColor: '#f1913d',
-  shadowOpacity: 0.35,
-  shadowRadius: 10,
-  shadowOffset: { width: 0, height: 4 },
-  elevation: 4,
-};
-
-/** Pill chip: gradient + glow when selected, frosted glass when not. */
-const CHIP_PAD = { paddingHorizontal: 24, paddingVertical: 14 } as const;
+const iconForType = (name?: string): IconName =>
+  (name && TYPE_ICON[name]) || 'home-outline';
 
 function CategoryChip({
   label,
+  icon,
   active,
+  isAr,
   onPress,
 }: {
   label: string;
+  icon: IconName;
   active: boolean;
+  isAr: boolean;
   onPress: () => void;
 }) {
   return (
@@ -66,39 +67,53 @@ function CategoryChip({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
-      style={active ? activeShadow : undefined}>
+      style={{
+        flexDirection: isAr ? 'row-reverse' : 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: '#ffffff',
+        borderRadius: 999,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+        paddingVertical: 11,
+        paddingHorizontal: 18,
+      }}>
       {active ? (
-        <LinearGradient
-          colors={['#f6a85c', '#ed8a2e']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+        <View
           style={{
-            borderRadius: 999,
-            borderWidth: 1,
-            borderColor: 'rgba(255, 255, 255, 0.4)',
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: '#f1913d',
             alignItems: 'center',
             justifyContent: 'center',
-            ...CHIP_PAD,
           }}>
-          <Text
-            numberOfLines={1}
-            className="text-white text-[15px] font-bold"
-            style={{ letterSpacing: -0.2 }}>
-            {label}
-          </Text>
-        </LinearGradient>
+          <MaterialCommunityIcons name="check" size={15} color="#ffffff" />
+        </View>
       ) : (
         <View
-          className="items-center justify-center"
-          style={[chipShadow, glassChip, { borderRadius: 999, ...CHIP_PAD }]}>
-          <Text
-            numberOfLines={1}
-            className="text-secondary text-[15px] font-bold"
-            style={{ letterSpacing: -0.2 }}>
-            {label}
-          </Text>
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: '#d1d5db',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <MaterialCommunityIcons name={icon} size={15} color="#9ca3af" />
         </View>
       )}
+      <Text
+        numberOfLines={1}
+        className="text-[15px]"
+        style={{
+          letterSpacing: -0.2,
+          fontWeight: active ? '700' : '600',
+          color: active ? '#1f2937' : '#6b7280',
+        }}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -188,6 +203,8 @@ export function CategoriesSection({ activeName, onSelect }: Props) {
           {/* "All" — clears the type filter; active when nothing is selected. */}
           <CategoryChip
             label={t('categoriesSection.all')}
+            icon="view-grid-outline"
+            isAr={isAr}
             active={!activeName}
             onPress={() => {
               pauseAutoplay();
@@ -204,6 +221,8 @@ export function CategoriesSection({ activeName, onSelect }: Props) {
               <CategoryChip
                 key={c.slug}
                 label={label}
+                icon={iconForType(c.name)}
+                isAr={isAr}
                 active={active}
                 onPress={() => {
                   pauseAutoplay();

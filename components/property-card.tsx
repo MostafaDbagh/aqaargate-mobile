@@ -5,7 +5,8 @@ import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, Text, View, type ViewStyle } from 'react-native';
 
-import { useFavoriteIds, useToggleFavorite } from '@/apis/hooks';
+import { useCompare, useFavoriteIds, useToggleFavorite } from '@/apis/hooks';
+import { useToast } from '@/components/feedback/toast';
 import {
   AreaIcon,
   BathIcon,
@@ -57,6 +58,15 @@ const tagShadow: ViewStyle = {
   shadowRadius: 5,
   shadowOffset: { width: 0, height: 2 },
   elevation: 1,
+};
+
+/** Lift for the floating corner status badge so it reads cleanly over the photo. */
+const badgeShadow: ViewStyle = {
+  shadowColor: '#000',
+  shadowOpacity: 0.2,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 3 },
+  elevation: 4,
 };
 
 /** Abbreviate a price for the compact card: 1850000 → 1.85M, 8200 → 8.2K. */
@@ -129,6 +139,17 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
     );
   };
 
+  // ---- Compare (max 3) — available to everyone, persisted ----
+  const { toggle: toggleCompare, isInCompare, max: maxCompare } = useCompare();
+  const inCompare = isInCompare(listing._id);
+  const toast = useToast();
+  const onCompare = () => {
+    const res = toggleCompare(listing);
+    if (res.action === 'added') toast.success(t('compare.toastAdded'));
+    else if (res.action === 'removed') toast.info(t('compare.toastRemoved'));
+    else toast.error(t('compare.limit', { count: maxCompare }));
+  };
+
   // ---- Shared pieces ----
   // ONE status tag — "For Sale" (green) / "For Rent" (blue) — with a single
   // trailing icon: 🏖️ for holiday homes, else crown (VIP) or star (Featured).
@@ -164,20 +185,42 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
       </Pressable>
     ) : null;
 
+  // Flat action-row button (matches Call / WhatsApp style), pinned to the right.
+  const CompareAction = () => (
+    <Pressable
+      onPress={onCompare}
+      hitSlop={6}
+      accessibilityRole="button"
+      accessibilityState={{ selected: inCompare }}
+      accessibilityLabel={t('compare.compare')}
+      className="flex-row items-center gap-1.5 active:opacity-60"
+      style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
+      <Ionicons
+        name={inCompare ? 'checkmark-circle' : 'git-compare'}
+        size={15}
+        color="#f1913d"
+      />
+      <Text className="text-primary text-[14px] font-bold">
+        {inCompare ? t('compare.added') : t('compare.compare')}
+      </Text>
+    </Pressable>
+  );
+
   const Badge = ({ small = false }: { small?: boolean }) =>
     cornerBadge ? (
       <View
-        className="flex-row items-center rounded-lg"
+        className="flex-row items-center rounded-full"
         style={{
           backgroundColor: cornerBadge.bg,
-          paddingHorizontal: small ? 8 : 10,
-          paddingVertical: small ? 3 : 5,
+          paddingHorizontal: small ? 11 : 14,
+          paddingVertical: small ? 4 : 6,
           gap: 5,
           flexDirection: isAr ? 'row-reverse' : 'row',
+          ...badgeShadow,
         }}>
         <Text
           className="text-white font-extrabold"
-          style={{ fontSize: small ? 9 : 11, letterSpacing: 0.6 }}>
+          style={{ fontSize: small ? 9 : 11, letterSpacing: 0.5 }}>
           {cornerBadge.label}
         </Text>
         {cornerBadge.icon === 'crown' ? (
@@ -313,7 +356,9 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
       onPress={openDetail}
       className="bg-white rounded-2xl overflow-hidden mb-4 border border-line active:opacity-95"
       style={cardShadow}>
-      <View className="relative" style={{ aspectRatio: 3 / 2 }}>
+      <View
+        className="relative self-center overflow-hidden"
+        style={{ aspectRatio: 3 / 2, width: '98%', borderRadius: 16, marginTop: 6 }}>
         {cover ? (
           <Image source={{ uri: cover }} style={{ width: '100%', height: '100%' }} contentFit="cover" transition={150} />
         ) : (
@@ -327,8 +372,8 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
           <Badge />
         </View>
 
-        {/* Top-right heart (signed-in users only) */}
-        <View className="absolute top-3 right-3">
+        {/* Top-right action: heart (signed-in only) */}
+        <View className="absolute top-3 right-3 items-end">
           <HeartButton size={36} />
         </View>
 
@@ -409,41 +454,45 @@ export function PropertyCard({ listing, variant = 'vertical', badge, showContact
         {/* Meta */}
         <MetaRow />
 
-        {/* Contact action buttons — flat text style, above a divider */}
-        {showContact && (listing.agentNumber || listing.agentWhatsapp) ? (
-          <>
-            <View className="border-t border-line mt-3" />
-            <View
-              className="flex-row items-center mt-2.5"
-              style={{ flexDirection: isAr ? 'row-reverse' : 'row', gap: 24 }}>
-              {listing.agentNumber ? (
-                <Pressable
-                  onPress={() => Linking.openURL(`tel:${listing.agentNumber}`)}
-                  hitSlop={6}
-                  className="flex-row items-center gap-1.5 active:opacity-60"
-                  style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
-                  <Ionicons name="call" size={15} color="#f1913d" />
-                  <Text className="text-primary text-[14px] font-bold">{t('propertyDetail.call')}</Text>
-                </Pressable>
-              ) : null}
-              {listing.agentWhatsapp ? (
-                <Pressable
-                  onPress={() => {
-                    const num = (listing.agentWhatsapp || '').replace(/[^\d+]/g, '').replace('+', '');
-                    Linking.openURL(`https://wa.me/${num}`);
-                  }}
-                  hitSlop={6}
-                  className="flex-row items-center gap-1.5 active:opacity-60"
-                  style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
-                  <Ionicons name="logo-whatsapp" size={15} color="#25D366" />
-                  <Text className="text-[14px] font-bold" style={{ color: '#25D366' }}>
-                    WhatsApp
-                  </Text>
-                </Pressable>
-              ) : null}
-            </View>
-          </>
-        ) : null}
+        {/* Action row — contact (left) + compare pinned to the right, above a divider */}
+        <View className="border-t border-line mt-3" />
+        <View
+          className="flex-row items-center justify-between mt-2.5"
+          style={{ flexDirection: isAr ? 'row-reverse' : 'row', gap: 16 }}>
+          {/* Contact actions */}
+          <View
+            className="flex-row items-center"
+            style={{ flexDirection: isAr ? 'row-reverse' : 'row', gap: 24 }}>
+            {showContact && listing.agentNumber ? (
+              <Pressable
+                onPress={() => Linking.openURL(`tel:${listing.agentNumber}`)}
+                hitSlop={6}
+                className="flex-row items-center gap-1.5 active:opacity-60"
+                style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
+                <Ionicons name="call" size={15} color="#f1913d" />
+                <Text className="text-primary text-[14px] font-bold">{t('propertyDetail.call')}</Text>
+              </Pressable>
+            ) : null}
+            {showContact && listing.agentWhatsapp ? (
+              <Pressable
+                onPress={() => {
+                  const num = (listing.agentWhatsapp || '').replace(/[^\d+]/g, '').replace('+', '');
+                  Linking.openURL(`https://wa.me/${num}`);
+                }}
+                hitSlop={6}
+                className="flex-row items-center gap-1.5 active:opacity-60"
+                style={{ flexDirection: isAr ? 'row-reverse' : 'row' }}>
+                <Ionicons name="logo-whatsapp" size={15} color="#25D366" />
+                <Text className="text-[14px] font-bold" style={{ color: '#25D366' }}>
+                  WhatsApp
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+
+          {/* Compare — available to everyone, pinned to the right */}
+          <CompareAction />
+        </View>
       </View>
     </Pressable>
   );

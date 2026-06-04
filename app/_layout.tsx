@@ -10,12 +10,14 @@ import { Image, StyleSheet, View } from 'react-native';
 import { Provider as ReduxProvider } from 'react-redux';
 import 'react-native-reanimated';
 
+import { CompareTray } from '@/components/compare/compare-tray';
 import { ToastProvider } from '@/components/feedback/toast';
 import { FontProvider } from '@/components/font-provider';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useOnboardingGate } from '@/hooks/use-onboarding-gate';
 import { setUnauthorizedHandler } from '@/lib/api';
 import { queryClient } from '@/lib/query-client';
+import { hydrateCompare, setupComparePersistence } from '@/store/compare-persist';
 import { clearCredentials, hydrateAuth } from '@/store/persist';
 import { store } from '@/store/store';
 
@@ -32,6 +34,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     hydrateAuth();
+    hydrateCompare();
+    setupComparePersistence();
   }, []);
 
   useEffect(() => {
@@ -69,7 +73,11 @@ export default function RootLayout() {
               <Stack.Screen name="rental-service" options={{ headerShown: false, animation: 'slide_from_right' }} />
               <Stack.Screen name="search" options={{ headerShown: false, animation: 'slide_from_right' }} />
               <Stack.Screen name="holiday-homes" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="blogs/index" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="blogs/[id]" options={{ headerShown: false, animation: 'slide_from_right' }} />
+              <Stack.Screen name="compare" options={{ headerShown: false, animation: 'slide_from_right' }} />
             </Stack>
+            <CompareTray />
             <StatusBar style="auto" />
             {booting ? (
               <View

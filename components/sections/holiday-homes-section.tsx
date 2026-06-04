@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, Text, View } from 'react-native';
 
 import { PropertyCard } from '@/components/property-card';
+import { SectionHeader } from '@/components/sections/section-header';
 import { searchListingsPaginated } from '@/lib/api';
 
 const CARD_WIDTH = 310;
@@ -29,32 +30,21 @@ export function HolidayHomesSection() {
 
   return (
     <View className="py-2">
-      {/* Header row: title + count, and a "View all" link */}
-      <View
-        className="px-5 flex-row items-center justify-between mb-5"
-        style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-        <View style={{ flexShrink: 1 }}>
-          <Text
-            className="text-secondary text-[18px] font-extrabold"
-            style={{ letterSpacing: -0.3, textAlign: isRTL ? 'right' : 'left' }}>
-            {t('home.holidayHomesTitle')}
-            {total > 0 ? <Text className="text-note text-[15px] font-bold"> ({total})</Text> : null}
-          </Text>
-          <Text
-            className="text-note text-[12px] mt-0.5"
-            style={{ textAlign: isRTL ? 'right' : 'left' }}>
-            {t('home.holidayHomesSubtitle')}
-          </Text>
-        </View>
-
-        <Pressable
-          onPress={() => router.push('/holiday-homes' as never)}
-          className="flex-row items-center gap-1 active:opacity-70"
-          style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-          <Text className="text-primary text-[13px] font-bold">{t('home.viewAll')}</Text>
-          <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color="#f1913d" />
-        </Pressable>
-      </View>
+      {/* Title + live count, with a "View all" link — unified via SectionHeader. */}
+      <SectionHeader
+        title={t('home.holidayHomesTitle')}
+        subtitle={t('home.holidayHomesSubtitle')}
+        count={total}
+        action={
+          <Pressable
+            onPress={() => router.push('/holiday-homes' as never)}
+            className="flex-row items-center gap-1 active:opacity-70"
+            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            <Text className="text-primary text-[13px] font-bold">{t('home.viewAll')}</Text>
+            <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={14} color="#f1913d" />
+          </Pressable>
+        }
+      />
 
       {isLoading ? (
         <View className="px-5">

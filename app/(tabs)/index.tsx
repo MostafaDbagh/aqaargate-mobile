@@ -130,7 +130,7 @@ export default function HomeScreen() {
           />
         }
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-8">
+          <View {...rest} className="px-6">
             {children}
           </View>
         )}

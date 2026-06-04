@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, Text, View } from 'react-native';
 
-type SocialItem = {
+export type SocialItem = {
   key: 'facebook' | 'linkedin' | 'instagram';
   url: string;
   icon: keyof typeof Ionicons.glyphMap;
@@ -10,7 +11,7 @@ type SocialItem = {
   brand: string;
 };
 
-const SOCIALS: SocialItem[] = [
+export const SOCIALS: SocialItem[] = [
   {
     key: 'facebook',
     url: 'https://www.facebook.com/profile.php?id=61585950591929',
@@ -34,59 +35,71 @@ const SOCIALS: SocialItem[] = [
   },
 ];
 
+export function SocialButton({ item, label }: { item: SocialItem; label: string }) {
+  return (
+    <Pressable
+      onPress={() => Linking.openURL(item.url)}
+      accessibilityRole="link"
+      accessibilityLabel={label}
+      hitSlop={8}
+      style={({ pressed }) => ({
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: item.brand,
+        shadowColor: item.brand,
+        shadowOpacity: pressed ? 0.2 : 0.3,
+        shadowRadius: pressed ? 5 : 10,
+        shadowOffset: { width: 0, height: pressed ? 2 : 5 },
+        elevation: pressed ? 1 : 3,
+        transform: [{ scale: pressed ? 0.9 : 1 }],
+      })}>
+      <LinearGradient
+        colors={item.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          flex: 1,
+          borderRadius: 25,
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.22)',
+          overflow: 'hidden',
+        }}>
+        <Ionicons name={item.icon} size={23} color="#ffffff" />
+      </LinearGradient>
+    </Pressable>
+  );
+}
+
 export function SocialMediaBar() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
   return (
-    <View className="px-5 py-6 bg-white">
+    <View className="px-6 pt-2 pb-8 bg-white">
+      <Text
+        className="text-secondary text-[18px] font-extrabold tracking-tight"
+        style={{ textAlign: isRTL ? 'right' : 'left' }}>
+        {t('socialMedia.title')}
+      </Text>
+      <Text
+        className="text-note text-[13px] mt-1.5 leading-[19px]"
+        style={{ textAlign: isRTL ? 'right' : 'left' }}>
+        {t('socialMedia.subtitle')}
+      </Text>
+
       <View
-        className="rounded-3xl px-5 py-5 border border-line bg-cream/40"
+        className="flex-row items-center mt-5"
         style={{
-          shadowColor: '#000',
-          shadowOpacity: 0.04,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 1,
+          flexDirection: isRTL ? 'row-reverse' : 'row',
+          gap: 16,
+          alignSelf: isRTL ? 'flex-end' : 'flex-start',
         }}>
-        <View
-          className="flex-row items-center justify-between"
-          style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-          <View className="flex-1">
-            <Text
-              className="text-secondary text-[16px] font-extrabold tracking-tight"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('socialMedia.title')}
-            </Text>
-            <Text
-              className="text-note text-[12px] mt-1"
-              style={{ textAlign: isRTL ? 'right' : 'left' }}>
-              {t('socialMedia.subtitle')}
-            </Text>
-          </View>
-          <View
-            className="flex-row items-center gap-2.5"
-            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-            {SOCIALS.map((s) => (
-              <Pressable
-                key={s.key}
-                onPress={() => Linking.openURL(s.url)}
-                accessibilityRole="link"
-                accessibilityLabel={t(`socialMedia.${s.key}`)}
-                className="w-11 h-11 rounded-full items-center justify-center active:opacity-80"
-                style={{
-                  backgroundColor: s.brand,
-                  shadowColor: s.brand,
-                  shadowOpacity: 0.25,
-                  shadowRadius: 6,
-                  shadowOffset: { width: 0, height: 3 },
-                  elevation: 2,
-                }}>
-                <Ionicons name={s.icon} size={20} color="#ffffff" />
-              </Pressable>
-            ))}
-          </View>
-        </View>
+        {SOCIALS.map((s) => (
+          <SocialButton key={s.key} item={s} label={t(`socialMedia.${s.key}`)} />
+        ))}
       </View>
     </View>
   );

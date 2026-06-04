@@ -5,6 +5,8 @@ export const STORAGE_KEYS = {
   user: 'user',
   // Bump the suffix to re-trigger the first-run onboarding after a material rewrite.
   onboardingSeen: 'onboarding_seen_v1',
+  // Persisted "compare properties" selection (max 3 listings).
+  compare: 'compare_v1',
 } as const;
 
 export const storage = {

@@ -96,7 +96,7 @@ export default function ProjectsScreen() {
           />
         </Pressable>
         <Text
-          className="flex-1 text-secondary text-[18px] font-extrabold"
+          className="flex-1 text-secondary text-[17px] font-extrabold tracking-tight"
           style={{ textAlign: 'center' }}>
           {t('projectsScreen.title')}
         </Text>

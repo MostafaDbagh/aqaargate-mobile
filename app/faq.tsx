@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenHeading } from '@/components/sections/screen-heading';
+
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -96,12 +98,10 @@ export default function FaqScreen() {
         contentContainerStyle={{ paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}>
         <View className="px-5 pt-2 pb-4">
-          <Text className="text-secondary text-[22px] font-extrabold tracking-tight">
-            {t('faqScreen.title')}
-          </Text>
-          <Text className="text-text text-[13px] mt-1">
-            {t('faqScreen.subtitle')}
-          </Text>
+          <ScreenHeading
+            title={t('faqScreen.title')}
+            subtitle={t('faqScreen.subtitle')}
+          />
         </View>
 
         {SECTIONS.map((section) => (
