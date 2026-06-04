@@ -55,6 +55,7 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
             style={{
               width: '60%',
               marginTop: 32,
+              marginBottom: 16,
               alignSelf: isRTL ? 'flex-end' : 'flex-start',
               textAlign: isRTL ? 'right' : 'left',
               letterSpacing: -0.5,
