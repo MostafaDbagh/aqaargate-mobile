@@ -47,7 +47,19 @@ export function useOnboardingGate(): boolean {
         // Dev builds always replay onboarding; prod respects the persisted flag.
         const seen = __DEV__ ? false : await hasSeenOnboarding();
         if (!active) return;
-        if (!seen) router.replace(ONBOARDING_HREF);
+        if (!seen) {
+          // Defer the redirect one extra frame past `isReady()`. Replacing the
+          // route synchronously with the navigator's first commit lets
+          // react-navigation's `useSyncState` feed back into its own render and
+          // trip "Maximum update depth exceeded" (intermittently, as a race).
+          // Waiting a frame lets that first commit settle before we navigate.
+          frame = requestAnimationFrame(() => {
+            if (!active) return;
+            router.replace(ONBOARDING_HREF);
+            setBooting(false);
+          });
+          return;
+        }
         setBooting(false);
       })();
     };

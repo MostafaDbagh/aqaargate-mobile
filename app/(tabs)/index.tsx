@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Hero } from '@/components/hero';
 import { HomeHeader } from '@/components/home-header';
 import { PropertyCard } from '@/components/property-card';
+import { AddPropertyCta } from '@/components/sections/add-property-cta';
 import { CategoriesSection } from '@/components/sections/categories-section';
 import { CitiesSection } from '@/components/sections/cities-section';
 import { HolidayHomesSection } from '@/components/sections/holiday-homes-section';
@@ -118,6 +119,7 @@ export default function HomeScreen() {
           <View className="gap-6 pt-6">
             <HolidayHomesSection />
             <SummerCta />
+            <AddPropertyCta />
             <SocialMediaBar />
           </View>
         }
