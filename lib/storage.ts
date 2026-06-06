@@ -3,8 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const STORAGE_KEYS = {
   token: 'token',
   user: 'user',
-  // Bump the suffix to re-trigger the first-run onboarding after a material rewrite.
-  onboardingSeen: 'onboarding_seen_v1',
+  // Stores the app version the onboarding carousel was last completed for, so it
+  // re-shows on a fresh install AND once after every app-version update. (Existing
+  // installs on the old boolean key naturally fall through to "not seen".)
+  onboardingSeenVersion: 'onboarding_seen_version',
   // Persisted "compare properties" selection (max 3 listings).
   compare: 'compare_v1',
 } as const;

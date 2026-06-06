@@ -40,10 +40,9 @@
     "filtersTooltip": "Open advanced filters",
     "emptyWarning": "Type something to search, or pick a filter.",
     "aiSearchPlaceholders": [
-      "Type what you want to search for about properties in Syria, e.g. (show me houses in Latakia)",
+      "Ask AI anything...",
+      "Type naturally for ease of search",
       "Land for sale in Damascus",
-      "Sea view villa in Latakia under $200,000",
-      "Apartments for sale in Tartus with three bedrooms",
       "Houses for sale in Homs"
     ],
     "aiChips": ["3-bed in Damascus", "Sea view villa", "Under $100k"]
@@ -99,6 +98,23 @@
     "title": "Browse by property type",
     "subtitle": "Apartments, villas, lands, and more across Syria",
     "all": "All"
+  },
+  "ownerBanners": {
+    "heading": "For Property Owners",
+    "subtitle": "List your property and reach buyers across Syria",
+    "summerEyebrow": "☀️ Summer Season",
+    "summerTitle": "Rent Out Your Villa or Farm",
+    "summerSubtitle": "List your villa, farm or chalet for daily rent this summer",
+    "summerCta": "List for Daily Rent",
+    "selfEyebrow": "🏠 For Owners",
+    "selfTitle": "Add Your Property Yourself",
+    "selfSubtitle": "Create an agent account and publish your listing in minutes",
+    "selfCta": "Add Your Property",
+    "teamEyebrow": "💬 AqaarGate Team",
+    "teamTitle": "No Time? Our Team Lists It for You",
+    "teamSubtitle": "Send us your property photos on WhatsApp and we'll list it for you",
+    "teamCta": "Chat on WhatsApp",
+    "whatsappMessage": "Hi AqaarGate 👋 I'd like to list my property. Can your team help me?"
   },
   "citiesSection": {
     "title": "Explore Syria Cities Offerings",
@@ -388,6 +404,18 @@
     "swimmingPool": "Swimming pool",
     "fireAlarms": "Fire alarms"
   },
+  "globalStatus": {
+    "login": "Log in",
+    "close": "Close",
+    "continue": "Continue",
+    "accountCreatedFor": "Account created for:"
+  },
+  "registrationSuccess": {
+    "title": "Registration Successful!",
+    "message": "Your account has been created successfully. You can now log in with your credentials.",
+    "failedTitle": "Registration Failed",
+    "failedMessage": "We couldn't create your account. Please try again."
+  },
   "propertyDetail": {
     "id": "ID",
     "copied": "Property ID copied",
@@ -434,6 +462,7 @@
     "messagePlaceholder": "Write your message to the agent…",
     "messageSubmit": "Send message",
     "messageSending": "Sending…",
+    "messageSentTitle": "Message sent",
     "messageSentSuccess": "Message sent successfully!",
     "messageErrorTitle": "Couldn't send your message.",
     "messageNameRequired": "Please enter your name",
@@ -467,6 +496,8 @@
     "reviewPlaceholder": "Share your experience with this property…",
     "postReview": "Post review",
     "submitting": "Submitting…",
+    "submittedTitle": "Thank you!",
+    "failedTitle": "Submission failed",
     "reviewSubmitted": "Review submitted successfully!",
     "reviewFailed": "Couldn't submit your review. Please try again.",
     "nameRequired": "Please enter your name",
@@ -775,6 +806,7 @@
     "deleteConfirmTitle": "Delete account?",
     "deleteConfirmMessage": "This permanently deletes your account and listings.",
     "deleteSuccess": "Account deleted",
+    "deleting": "Deleting...",
     "cancel": "Cancel",
     "confirm": "Confirm"
   },

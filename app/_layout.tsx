@@ -11,6 +11,7 @@ import { Provider as ReduxProvider } from 'react-redux';
 import 'react-native-reanimated';
 
 import { CompareTray } from '@/components/compare/compare-tray';
+import { StatusModalProvider } from '@/components/feedback/status-modal';
 import { ToastProvider } from '@/components/feedback/toast';
 import { FontProvider } from '@/components/font-provider';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -52,6 +53,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <FontProvider>
         <ToastProvider>
+        <StatusModalProvider>
           <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false, title: 'Home' }} />
@@ -91,6 +93,7 @@ export default function RootLayout() {
               </View>
             ) : null}
           </ThemeProvider>
+        </StatusModalProvider>
         </ToastProvider>
         </FontProvider>
       </QueryClientProvider>

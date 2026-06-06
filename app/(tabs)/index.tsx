@@ -8,13 +8,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Hero } from '@/components/hero';
 import { HomeHeader } from '@/components/home-header';
 import { PropertyCard } from '@/components/property-card';
-import { AddPropertyCta } from '@/components/sections/add-property-cta';
 import { CategoriesSection } from '@/components/sections/categories-section';
 import { CitiesSection } from '@/components/sections/cities-section';
 import { HolidayHomesSection } from '@/components/sections/holiday-homes-section';
+import { OwnerBannersSection } from '@/components/sections/owner-banners-section';
 import { SectionHeader } from '@/components/sections/section-header';
 import { SocialMediaBar } from '@/components/sections/social-media-bar';
-import { SummerCta } from '@/components/sections/summer-cta';
 import { ListingSkeletonGrid } from '@/components/skeletons/listing-skeleton';
 import { searchListings, type Listing, type SearchParams } from '@/lib/api';
 
@@ -75,6 +74,8 @@ export default function HomeScreen() {
               onApplyFilters={updateFilter}
             />
 
+            <OwnerBannersSection />
+
             <CategoriesSection
               activeName={params.propertyType}
               onSelect={(name) => updateFilter({ propertyType: name })}
@@ -118,8 +119,6 @@ export default function HomeScreen() {
         ListFooterComponent={
           <View className="gap-6 pt-6">
             <HolidayHomesSection />
-            <SummerCta />
-            <AddPropertyCta />
             <SocialMediaBar />
           </View>
         }

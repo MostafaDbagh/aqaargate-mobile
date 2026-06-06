@@ -35,7 +35,10 @@ export default function RegisterScreen() {
   const onSubmit = handleSubmit(async (values) => {
     try {
       await sendOtp.mutateAsync({ email: values.email, type: 'signup' });
-      router.push({
+      // `replace`, not `push`: once the code is sent we close the register step
+      // and hand off to OTP, so register is no longer in the auth stack behind
+      // it. Closing the OTP screen returns to login (see otp.tsx onClose).
+      router.replace({
         pathname: '/(auth)/otp',
         params: {
           type: 'signup',

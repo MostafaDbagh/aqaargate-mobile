@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { ExtendedListing } from '@/apis/listing';
 import { reviewAPI, type CreateReviewPayload, type Review } from '@/apis/review';
-import { useToast } from '@/components/feedback/toast';
+import { useStatusModal } from '@/components/feedback/status-modal';
 import { CloseIcon } from '@/components/icons/svg-icons';
 import { getApiErrorMessage } from '@/lib/api';
 import { selectCurrentUser } from '@/store/selectors';
@@ -276,7 +276,7 @@ function LeaveReviewModal({
 }) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const toast = useToast();
+  const status = useStatusModal();
   const qc = useQueryClient();
   const user = useAppSelector(selectCurrentUser);
 
@@ -319,13 +319,19 @@ function LeaveReviewModal({
         rating,
         userId: user?._id,
       });
-      toast.success(t('reviews.reviewSubmitted'));
       qc.invalidateQueries({ queryKey: ['reviews', propertyId] });
       setReview('');
       setErrors({});
       onClose();
+      status.success({
+        title: t('reviews.submittedTitle'),
+        message: t('reviews.reviewSubmitted'),
+      });
     } catch (err) {
-      toast.error(getApiErrorMessage(err, t('reviews.reviewFailed')));
+      status.error({
+        title: t('reviews.failedTitle'),
+        message: getApiErrorMessage(err, t('reviews.reviewFailed')),
+      });
     }
   };
 

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Linking, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,8 +14,9 @@ import { SettingsIcon } from '@/components/settings-icon';
 import { ListingSkeletonGrid } from '@/components/skeletons/listing-skeleton';
 import { searchListings, type Listing } from '@/lib/api';
 
-const HERO_IMAGE =
-  'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1920';
+// Bundled locally (was a hotlinked Pexels URL) so the hero always renders even
+// offline / during App Review. Source: Pexels (royalty-free license).
+const HERO_IMAGE = require('@/assets/images/vip-hero.jpg');
 const VIP_PHONE = '+963980184112';
 const VIP_EMAIL = 'contact@aqaargate.com';
 
@@ -37,12 +39,21 @@ export default function VipScreen() {
 
   const hasListings = (listings as Listing[]).length > 0;
 
+  // Hero CTA scrolls to the listings section. The whole hero + "why choose" +
+  // listings header live in ListHeaderComponent (which starts at offset 0), so
+  // the listings header's layout.y is its absolute scroll offset.
+  const listRef = useRef<FlatList<Listing>>(null);
+  const listingsOffsetRef = useRef(0);
+  const scrollToListings = () =>
+    listRef.current?.scrollToOffset({ offset: listingsOffsetRef.current, animated: true });
+
   const onCall = () => Linking.openURL(`tel:${VIP_PHONE}`);
   const onEmail = () => Linking.openURL(`mailto:${VIP_EMAIL}?subject=VIP%20Inquiry`);
 
   return (
     <View className="flex-1 bg-white">
       <FlatList
+        ref={listRef}
         data={listings as Listing[]}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => <PropertyCard listing={item} />}
@@ -52,7 +63,7 @@ export default function VipScreen() {
             {/* HERO */}
             <View className="relative overflow-hidden" style={{ height: 460 }}>
               <Image
-                source={{ uri: HERO_IMAGE }}
+                source={HERO_IMAGE}
                 style={{ position: 'absolute', inset: 0 }}
                 contentFit="cover"
                 transition={200}
@@ -127,13 +138,9 @@ export default function VipScreen() {
                     {t('vipPage.heroSubtitle')}
                   </Text>
 
-                  {/* CTA button */}
+                  {/* CTA button — jumps the user down to the VIP listings. */}
                   <Pressable
-                    onPress={() => {
-                      // Scrolling within FlatList header is non-trivial; the listings
-                      // section is right below this header so the CTA mostly serves
-                      // as a visual affordance. No-op is acceptable.
-                    }}
+                    onPress={scrollToListings}
                     disabled={!hasListings}
                     style={{ alignSelf: isRTL ? 'flex-end' : 'flex-start', opacity: hasListings ? 1 : 0.6 }}>
                     <LinearGradient
@@ -226,7 +233,11 @@ export default function VipScreen() {
             </View>
 
             {/* LISTINGS SECTION HEADER */}
-            <View className="px-5 pt-8 pb-4 bg-cream">
+            <View
+              onLayout={(e) => {
+                listingsOffsetRef.current = e.nativeEvent.layout.y;
+              }}
+              className="px-5 pt-8 pb-4 bg-cream">
               <Text className="text-heading text-[22px] font-bold text-center mb-2">
                 {t('vipPage.listingsTitle')}
               </Text>

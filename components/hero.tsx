@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Animated, Pressable, Text, TextInput, View } from 'react-native';
 import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
 
 import type { SearchParams } from '@/lib/api';
@@ -27,6 +27,26 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
 
   const rawChips = t('hero.aiChips', { returnObjects: true }) as string[] | string;
   const chips = Array.isArray(rawChips) ? rawChips : [];
+
+  // Rotating placeholder — crossfades through the i18n examples (mirrors the web
+  // hero): starts on "Ask AI anything…", then "Type naturally…", then example
+  // queries. Pauses the moment the user starts typing.
+  const rawPlaceholders = t('hero.aiSearchPlaceholders', { returnObjects: true }) as string[] | string;
+  const placeholders = Array.isArray(rawPlaceholders) ? rawPlaceholders : [];
+  const isTyping = query.trim().length > 0;
+  const [phIndex, setPhIndex] = useState(0);
+  const phOpacity = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (isTyping || placeholders.length <= 1) return;
+    const id = setInterval(() => {
+      Animated.timing(phOpacity, { toValue: 0, duration: 350, useNativeDriver: true }).start(() => {
+        setPhIndex((i) => (i + 1) % placeholders.length);
+        Animated.timing(phOpacity, { toValue: 1, duration: 350, useNativeDriver: true }).start();
+      });
+    }, 3500);
+    return () => clearInterval(id);
+  }, [isTyping, placeholders.length, phOpacity]);
+  const currentExample = placeholders.length > 0 ? placeholders[phIndex % placeholders.length] : t('hero.askAi');
 
   const search = (keyword: string) => onSearch({ keyword: keyword.trim(), status });
   const submit = () => search(query);
@@ -81,20 +101,42 @@ export function Hero({ value, onSearch, onApplyFilters }: Props) {
             }}>
             {/* Prompt row: sparkle + input */}
             <View
-              className="flex-row items-center"
-              style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
-              <Ionicons name="sparkles" size={20} color="#f1913d" />
-              <TextInput
-                value={query}
-                onChangeText={setQuery}
-                onSubmitEditing={submit}
-                returnKeyType="search"
-                accessibilityLabel={t('hero.subtitle')}
-                placeholder={t('hero.askAi')}
-                placeholderTextColor="#cf9266"
-                className="flex-1 text-[16px] text-secondary"
-                style={{ textAlign: isRTL ? 'right' : 'left', paddingVertical: 4 }}
-              />
+              className="flex-row"
+              style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: 10 }}>
+              <Ionicons name="sparkles" size={20} color="#f1913d" style={{ marginTop: 5 }} />
+              <View style={{ flex: 1, position: 'relative', justifyContent: 'center', minHeight: 30 }}>
+                {/* Rotating placeholder kept in normal flow so a long example wraps
+                    onto multiple lines (never truncated with an ellipsis) and grows
+                    the field. The single-line input overlays it while empty, then
+                    takes the flow once the user types. */}
+                {!isTyping && currentExample ? (
+                  <Animated.Text
+                    pointerEvents="none"
+                    style={{
+                      paddingVertical: 4,
+                      fontSize: 16,
+                      lineHeight: 22,
+                      color: '#cf9266',
+                      textAlign: isRTL ? 'right' : 'left',
+                      opacity: phOpacity,
+                    }}>
+                    {currentExample}
+                  </Animated.Text>
+                ) : null}
+                <TextInput
+                  value={query}
+                  onChangeText={setQuery}
+                  onSubmitEditing={submit}
+                  returnKeyType="search"
+                  accessibilityLabel={t('hero.subtitle')}
+                  placeholderTextColor="transparent"
+                  className="text-secondary"
+                  style={[
+                    { fontSize: 16, lineHeight: 22, paddingVertical: 4, textAlign: isRTL ? 'right' : 'left' },
+                    isTyping ? null : { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+                  ]}
+                />
+              </View>
             </View>
 
             {/* Short suggestion chips — hidden once the user starts typing */}

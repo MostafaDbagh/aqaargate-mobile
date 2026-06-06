@@ -32,10 +32,10 @@ export function useAuth() {
 
   const signup = useMutation({
     mutationFn: (payload: SignupPayload) => authAPI.signup(payload),
-    onSuccess: async (data) => {
-      if (data?.token && data?.user) {
-        await persistCredentials(data.user, data.token);
-      }
+    // Match web: signup does NOT auto-authenticate. After registering, the user
+    // sees the success modal and logs in with their credentials (the modal's
+    // "Log in" button). So we deliberately don't persist a token here.
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['auth'] });
     },
   });
@@ -101,6 +101,22 @@ export function useUpdateProfile(userId: string) {
 export function useChangePassword(userId: string) {
   return useMutation({
     mutationFn: (newPassword: string) => userAPI.changePassword(userId, newPassword),
+  });
+}
+
+/**
+ * Permanently delete the signed-in user's account (App Store Guideline 5.1.1(v)).
+ * Mirrors `signout`: whatever the server returns, we clear local credentials and
+ * the query cache so the app drops back to a clean guest state.
+ */
+export function useDeleteAccount(userId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => userAPI.deleteAccount(userId),
+    onSettled: async () => {
+      await clearCredentials();
+      qc.clear();
+    },
   });
 }
 

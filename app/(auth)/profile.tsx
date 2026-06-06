@@ -6,7 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, Text, View } from 'react-native';
 
-import { useAuth, useChangePassword, useUpdateProfile } from '@/apis/hooks';
+import { useAuth, useChangePassword, useDeleteAccount, useUpdateProfile } from '@/apis/hooks';
 import { AuthScreenShell } from '@/components/forms/auth-screen-shell';
 import { PasswordField } from '@/components/forms/password-field';
 import { PhoneInput } from '@/components/forms/phone-input';
@@ -32,6 +32,7 @@ export default function ProfileScreen() {
   const toast = useToast();
   const user = useAppSelector(selectCurrentUser);
   const { signout } = useAuth();
+  const deleteAccount = useDeleteAccount(user?._id ?? '');
   const [showPasswordSection, setShowPasswordSection] = useState(false);
 
   useEffect(() => {
@@ -39,6 +40,26 @@ export default function ProfileScreen() {
   }, [user, router]);
 
   if (!user) return null;
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(t('profile.deleteConfirmTitle'), t('profile.deleteConfirmMessage'), [
+      { text: t('profile.cancel'), style: 'cancel' },
+      {
+        text: t('profile.deleteAccount'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteAccount.mutateAsync();
+          } catch {
+            // ignore — clearCredentials still runs in onSettled, dropping to guest
+          } finally {
+            toast.success(t('profile.deleteSuccess'));
+            router.dismissAll();
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <AuthScreenShell title={t('profile.title')}>
@@ -101,6 +122,20 @@ export default function ProfileScreen() {
           ]);
         }}
       />
+
+      <View className="h-px bg-gray-200 my-6" />
+
+      {/* Account deletion — required by App Store Guideline 5.1.1(v). */}
+      <Pressable
+        onPress={confirmDeleteAccount}
+        disabled={deleteAccount.isPending}
+        className="flex-row items-center justify-center py-3 active:opacity-70"
+        style={{ opacity: deleteAccount.isPending ? 0.5 : 1 }}>
+        <Ionicons name="trash-outline" size={18} color="#f2695c" />
+        <Text className="mx-2 text-[15px] font-semibold" style={{ color: '#f2695c' }}>
+          {deleteAccount.isPending ? t('profile.deleting') : t('profile.deleteAccount')}
+        </Text>
+      </Pressable>
     </AuthScreenShell>
   );
 }

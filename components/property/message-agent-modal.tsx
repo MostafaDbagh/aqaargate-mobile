@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { ExtendedListing } from '@/apis/listing';
 import { messageAPI, type MessagePayload } from '@/apis/message';
-import { useToast } from '@/components/feedback/toast';
+import { useStatusModal } from '@/components/feedback/status-modal';
 import { PhoneInput } from '@/components/forms/phone-input';
 import { CloseIcon } from '@/components/icons/svg-icons';
 import { getApiErrorMessage } from '@/lib/api';
@@ -44,7 +44,7 @@ export function MessageAgentModal({
 }) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
-  const toast = useToast();
+  const status = useStatusModal();
   const user = useAppSelector(selectCurrentUser);
 
   const [name, setName] = useState(user?.username ?? '');
@@ -91,16 +91,25 @@ export function MessageAgentModal({
       });
 
       if (res?.success === false) {
-        toast.error(res.message || res.error || t('propertyDetail.messageErrorTitle'));
+        status.error({
+          title: t('propertyDetail.messageErrorTitle'),
+          message: res.message || res.error || t('errors.generic'),
+        });
         return;
       }
 
-      toast.success(t('propertyDetail.messageSentSuccess'));
       setMessage('');
       setErrors({});
       onClose();
+      status.success({
+        title: t('propertyDetail.messageSentTitle'),
+        message: t('propertyDetail.messageSentSuccess'),
+      });
     } catch (err) {
-      toast.error(getApiErrorMessage(err, t('propertyDetail.messageErrorTitle')));
+      status.error({
+        title: t('propertyDetail.messageErrorTitle'),
+        message: getApiErrorMessage(err, t('errors.generic')),
+      });
     }
   };
 

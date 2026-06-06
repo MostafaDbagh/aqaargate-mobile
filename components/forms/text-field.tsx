@@ -56,7 +56,15 @@ export function TextField<T extends FieldValues>({
                   onBlur();
                 }}
                 placeholderTextColor="#9ca3af"
-                className="flex-1 py-3 text-base text-gray-900"
+                className="flex-1 py-3 text-gray-900"
+                style={[
+                  // fontSize without `text-base`'s lineHeight: an explicit
+                  // lineHeight makes iOS shift the text down on focus, and the
+                  // tall Arabic font metrics exaggerate it. Let the platform
+                  // center it; pin Android with no extra font padding.
+                  { fontSize: 16, includeFontPadding: false, textAlignVertical: 'center' },
+                  input.style,
+                ]}
               />
               {rightSlot}
             </View>
