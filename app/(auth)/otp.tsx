@@ -37,7 +37,7 @@ export default function OtpScreen() {
 
   const verifyOtp = useVerifyOtp();
   const sendOtp = useSendOtp();
-  const { signup } = useAuth();
+  const { signup, signin } = useAuth();
   const status = useStatusModal();
 
   const { control, handleSubmit, setError, clearErrors, watch } = useForm<OtpInputData>({
@@ -62,7 +62,7 @@ export default function OtpScreen() {
     // The auto-submit path calls this directly (not via handleSubmit), so guard
     // against overlapping runs: without this, editing the code back to 6 digits
     // while a request is in flight would fire a duplicate verify/signup.
-    if (verifyOtp.isPending || signup.isPending) return;
+    if (verifyOtp.isPending || signup.isPending || signin.isPending) return;
 
     // Any failure on this screen is recoverable in place, so surface it as an
     // inline error span under the code inputs (an RHF field error → OtpInput
@@ -118,6 +118,20 @@ export default function OtpScreen() {
       return;
     }
 
+    // Step 3 — auto-login the freshly-created user so they don't have to retype
+    // their credentials on the login screen. signin has no server-side email-
+    // verification gate, so the just-created account authenticates immediately;
+    // the signin mutation persists the token/session on success. If it fails
+    // (e.g. a network blip), fall back to the manual Log in button below.
+    // (This screen only ever registers role:'user', so it's users-only.)
+    let loggedIn = false;
+    try {
+      await signin.mutateAsync({ email, password: params.password ?? '' });
+      loggedIn = true;
+    } catch {
+      // keep loggedIn=false → success modal offers the Log in button
+    }
+
     router.dismissTo('/(tabs)');
     // Show AFTER the (auth) modal's dismiss transition settles so the root
     // overlay isn't revealed behind a still-sliding sheet. status.success
@@ -128,21 +142,29 @@ export default function OtpScreen() {
         title: t('registrationSuccess.title'),
         message: t('registrationSuccess.message'),
         email,
-        buttons: [
-          {
-            label: t('globalStatus.login'),
-            variant: 'primary',
-            // push (not replace): the auth flow was already dismissed above, so
-            // this opens login over the tabs and keeps (tabs) underneath — so
-            // login's dismissAll() returns the user to the app after signing in.
-            onPress: () => router.push('/(auth)/login'),
-          },
-          {
-            // Auth flow is already dismissed; this just closes the modal.
-            label: t('globalStatus.close'),
-            variant: 'secondary',
-          },
-        ],
+        buttons: loggedIn
+          ? [
+              {
+                // Already authenticated — just dismiss back into the app.
+                label: t('globalStatus.close'),
+                variant: 'primary',
+              },
+            ]
+          : [
+              {
+                label: t('globalStatus.login'),
+                variant: 'primary',
+                // push (not replace): the auth flow was already dismissed above, so
+                // this opens login over the tabs and keeps (tabs) underneath — so
+                // login's dismissAll() returns the user to the app after signing in.
+                onPress: () => router.push('/(auth)/login'),
+              },
+              {
+                // Auth flow is already dismissed; this just closes the modal.
+                label: t('globalStatus.close'),
+                variant: 'secondary',
+              },
+            ],
       });
     }, SUCCESS_MODAL_DELAY_MS);
   };
@@ -165,7 +187,7 @@ export default function OtpScreen() {
   const submitLabel = isForgot
     ? t('otpVerification.verifyAndReset')
     : t('otpVerification.verifyAndComplete');
-  const busy = verifyOtp.isPending || signup.isPending;
+  const busy = verifyOtp.isPending || signup.isPending || signin.isPending;
 
   return (
     <AuthScreenShell
