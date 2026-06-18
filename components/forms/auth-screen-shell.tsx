@@ -1,7 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const appLogo = require('../../assets/images/icon.png');
 
 type Props = {
   title: string;
@@ -15,28 +25,51 @@ export function AuthScreenShell({ title, subtitle, children, onClose }: Props) {
   const handleClose = () => (onClose ? onClose() : router.back());
 
   return (
-    <SafeAreaView edges={['top']} className="flex-1 bg-slate-50">
-      <View className="flex-row items-center justify-between px-5 pt-2">
-        <View className="w-10" />
+    <SafeAreaView edges={['top', 'bottom']} className="flex-1 bg-white">
+      {/* Close */}
+      <View className="flex-row items-center justify-end px-5 pt-1">
         <Pressable
           onPress={handleClose}
           accessibilityRole="button"
           accessibilityLabel="Close"
           hitSlop={10}
-          className="w-10 h-10 rounded-full items-center justify-center active:bg-gray-200">
-          <Ionicons name="close" size={24} color="#111827" />
+          className="w-10 h-10 rounded-full items-center justify-center active:bg-gray-100">
+          <Ionicons name="close" size={22} color="#2c2e33" />
         </Pressable>
       </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1">
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ padding: 20, paddingTop: 12, paddingBottom: 40 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            paddingHorizontal: 24,
+            paddingTop: 8,
+            paddingBottom: 32,
+          }}
           showsVerticalScrollIndicator={false}>
-          <Text className="text-brand text-2xl font-bold">{title}</Text>
-          {subtitle ? <Text className="text-gray-500 mt-1 mb-6">{subtitle}</Text> : null}
-          {children}
+          {/* Brand header — centered */}
+          <View className="items-center mb-8">
+            <Image
+              source={appLogo}
+              style={{ width: 92, height: 92, marginBottom: 14 }}
+              resizeMode="contain"
+            />
+            <Text className="text-heading text-[28px] leading-9 font-bold text-center tracking-tight">
+              {title}
+            </Text>
+            {subtitle ? (
+              <Text className="text-note text-[15px] leading-6 text-center mt-2 px-3">
+                {subtitle}
+              </Text>
+            ) : null}
+          </View>
+
+          {/* Form */}
+          <View className="w-full">{children}</View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

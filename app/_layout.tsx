@@ -6,7 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import { Provider as ReduxProvider } from 'react-redux';
 import 'react-native-reanimated';
 
@@ -90,6 +90,7 @@ export default function RootLayout() {
                   style={styles.coverIcon}
                   resizeMode="contain"
                 />
+                <ActivityIndicator size="small" color="#f1913d" style={styles.coverLoader} />
               </View>
             ) : null}
           </ThemeProvider>
@@ -109,4 +110,5 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   coverIcon: { width: 200, height: 200 },
+  coverLoader: { marginTop: 28 },
 });
