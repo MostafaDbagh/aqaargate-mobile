@@ -9,7 +9,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "smoke": "tsx scripts/smoke-api.ts"
+    "smoke": "tsx scripts/smoke-api.ts",
+    "hermes:release": "bash ios/ensure-hermes-release.sh"
   },
   "dependencies": {
     "@expo-google-fonts/cairo": "^0.4.2",
