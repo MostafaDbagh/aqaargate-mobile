@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { Linking, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { Project, ProjectUnitType } from '@/apis/project';
+import type {
+  Project,
+  ProjectNearbyPlace,
+  ProjectPaymentPlan,
+  ProjectUnitType,
+} from '@/apis/project';
 import { useProject } from '@/apis/hooks';
 import { DetailScreenSkeleton } from '@/components/skeletons/screen-skeletons';
 
@@ -322,6 +327,56 @@ function ProjectBody({
         </View>
       ) : null}
 
+      {/* Payment plans */}
+      {project.paymentPlans && project.paymentPlans.length > 0 ? (
+        <View className="px-5 mt-5">
+          <Text
+            className="text-secondary text-[15px] font-extrabold mb-2"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('projectsScreen.paymentPlans')}
+          </Text>
+          {project.paymentPlans.map((plan, idx) => (
+            <PaymentPlanCard key={plan._id ?? idx} plan={plan} isRTL={isRTL} />
+          ))}
+        </View>
+      ) : null}
+
+      {/* Amenities */}
+      {project.amenities && project.amenities.length > 0 ? (
+        <View className="px-5 mt-5">
+          <Text
+            className="text-secondary text-[15px] font-extrabold mb-2"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('projectsScreen.amenities')}
+          </Text>
+          <View
+            className="flex-row flex-wrap gap-3"
+            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            {project.amenities.map((a, idx) => {
+              const label = (isRTL ? a.label_ar || a.label : a.label) || a.key;
+              if (!label) return null;
+              return (
+                <View
+                  key={a._id ?? a.key ?? idx}
+                  className="flex-row items-center gap-2 bg-cream rounded-xl border border-line px-3 py-2.5"
+                  style={{
+                    width: '47.5%',
+                    flexDirection: isRTL ? 'row-reverse' : 'row',
+                  }}>
+                  <Ionicons name="checkmark-circle" size={16} color="#10b981" />
+                  <Text
+                    className="text-text text-[13px] flex-1"
+                    numberOfLines={2}
+                    style={{ textAlign: isRTL ? 'right' : 'left' }}>
+                    {label}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
+
       {/* Gallery */}
       {project.gallery && project.gallery.length > 0 ? (
         <View className="mt-5">
@@ -344,6 +399,20 @@ function ProjectBody({
               />
             ))}
           </ScrollView>
+        </View>
+      ) : null}
+
+      {/* Nearby places */}
+      {project.nearbyPlaces && project.nearbyPlaces.length > 0 ? (
+        <View className="px-5 mt-5">
+          <Text
+            className="text-secondary text-[15px] font-extrabold mb-2"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('projectsScreen.nearbyPlaces')}
+          </Text>
+          {project.nearbyPlaces.map((p, idx) => (
+            <NearbyRow key={p._id ?? idx} place={p} isRTL={isRTL} />
+          ))}
         </View>
       ) : null}
 
@@ -458,6 +527,114 @@ function UnitRow({
           className="text-primary text-[14px] font-extrabold mt-1"
           style={{ textAlign: isRTL ? 'right' : 'left' }}>
           {price}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+function PaymentPlanCard({
+  plan,
+  isRTL,
+}: {
+  plan: ProjectPaymentPlan;
+  isRTL: boolean;
+}) {
+  const name = isRTL ? plan.name_ar || plan.name : plan.name;
+  const milestones = plan.milestones ?? [];
+
+  return (
+    <View className="bg-cream rounded-2xl border border-line p-3 mb-2">
+      {name ? (
+        <Text
+          className="text-secondary text-[14px] font-extrabold mb-2"
+          style={{ textAlign: isRTL ? 'right' : 'left' }}>
+          {name}
+        </Text>
+      ) : null}
+      <View className="gap-2">
+        {milestones.map((m, idx) => {
+          const label = isRTL ? m.label_ar || m.label : m.label;
+          const dueAt = isRTL ? m.dueAt_ar || m.dueAt : m.dueAt;
+          return (
+            <View
+              key={m._id ?? idx}
+              className="flex-row items-center gap-3 bg-white rounded-xl border border-line p-2.5"
+              style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+              {typeof m.percentage === 'number' ? (
+                <Text
+                  className="text-primary text-[18px] font-extrabold"
+                  style={{ minWidth: 52, textAlign: isRTL ? 'right' : 'left' }}>
+                  {m.percentage}%
+                </Text>
+              ) : null}
+              <View className="flex-1">
+                {label ? (
+                  <Text
+                    className="text-secondary text-[13px] font-bold"
+                    style={{ textAlign: isRTL ? 'right' : 'left' }}>
+                    {label}
+                  </Text>
+                ) : null}
+                {dueAt ? (
+                  <Text
+                    className="text-text text-[12px] mt-0.5"
+                    style={{ textAlign: isRTL ? 'right' : 'left' }}>
+                    {dueAt}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+function NearbyRow({
+  place,
+  isRTL,
+}: {
+  place: ProjectNearbyPlace;
+  isRTL: boolean;
+}) {
+  const name = isRTL ? place.name_ar || place.name : place.name;
+  const distance =
+    typeof place.distance === 'number'
+      ? `${place.distance} ${place.distanceUnit ?? 'km'}`
+      : null;
+
+  return (
+    <View
+      className="flex-row items-center gap-3 bg-cream rounded-xl border border-line p-3 mb-2"
+      style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+      <View className="w-9 h-9 rounded-full bg-white border border-line items-center justify-center">
+        <Ionicons name="location-outline" size={16} color="#f1913d" />
+      </View>
+      <View className="flex-1">
+        {name ? (
+          <Text
+            className="text-secondary text-[13px] font-bold"
+            numberOfLines={1}
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {name}
+          </Text>
+        ) : null}
+        {place.category ? (
+          <Text
+            className="text-text text-[12px] mt-0.5"
+            numberOfLines={1}
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {place.category}
+          </Text>
+        ) : null}
+      </View>
+      {distance ? (
+        <Text
+          className="text-primary text-[12px] font-bold"
+          style={{ writingDirection: 'ltr' }}>
+          {distance}
         </Text>
       ) : null}
     </View>

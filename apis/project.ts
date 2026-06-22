@@ -32,6 +32,38 @@ export type ProjectUnitType = {
   floorPlan?: string;
 };
 
+export type ProjectAmenity = {
+  _id?: string;
+  key?: string;
+  label?: string;
+  label_ar?: string;
+};
+
+export type ProjectPaymentMilestone = {
+  _id?: string;
+  percentage?: number;
+  label?: string;
+  label_ar?: string;
+  dueAt?: string;
+  dueAt_ar?: string;
+};
+
+export type ProjectPaymentPlan = {
+  _id?: string;
+  name?: string;
+  name_ar?: string;
+  milestones?: ProjectPaymentMilestone[];
+};
+
+export type ProjectNearbyPlace = {
+  _id?: string;
+  category?: string;
+  name?: string;
+  name_ar?: string;
+  distance?: number;
+  distanceUnit?: string;
+};
+
 export type Project = {
   _id: string;
   slug?: string;
@@ -64,6 +96,9 @@ export type Project = {
   totalUnits?: number;
   availableUnits?: number;
   unitTypes?: ProjectUnitType[];
+  paymentPlans?: ProjectPaymentPlan[];
+  amenities?: ProjectAmenity[];
+  nearbyPlaces?: ProjectNearbyPlace[];
   coverImage?: string;
   gallery?: ProjectImage[];
   videoUrl?: string;
