@@ -253,7 +253,7 @@ export default function PropertyListScreen() {
         renderItem={({ item }) => <PropertyCard listing={item} />}
         contentContainerStyle={{ paddingTop: 8, paddingBottom: 32, backgroundColor: '#ffffff' }}
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-10 bg-white">
+          <View {...rest} className="px-6 bg-white">
             {children}
           </View>
         )}

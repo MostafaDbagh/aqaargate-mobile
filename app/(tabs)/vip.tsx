@@ -343,7 +343,7 @@ export default function VipScreen() {
           />
         }
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-10 bg-cream">
+          <View {...rest} className="px-6 bg-cream">
             {children}
           </View>
         )}

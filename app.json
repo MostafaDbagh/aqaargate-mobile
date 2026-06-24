@@ -47,7 +47,8 @@
         }
       ],
       "expo-localization",
-      "expo-font"
+      "expo-font",
+      "./plugins/with-phone-only.js"
     ],
     "experiments": {
       "typedRoutes": true,

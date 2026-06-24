@@ -72,7 +72,7 @@ export default function RentScreen() {
           />
         }
         CellRendererComponent={({ children, ...rest }) => (
-          <View {...rest} className="px-10 bg-white">
+          <View {...rest} className="px-6 bg-white">
             {children}
           </View>
         )}
