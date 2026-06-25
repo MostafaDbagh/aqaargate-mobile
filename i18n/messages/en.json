@@ -704,7 +704,23 @@
     "retry": "Try again",
     "emptyTitle": "No projects found",
     "emptyMessage": "Try a different search or filter.",
-    "resetFilters": "Reset filters"
+    "resetFilters": "Reset filters",
+    "startingFrom": "Starting from",
+    "registerInterest": "Register Interest",
+    "downloadBrochure": "Download brochure",
+    "watchVideo": "Watch video",
+    "completionDate": "Completion date",
+    "projectType": "Type",
+    "projectTypes": {
+      "residential": "Residential",
+      "commercial": "Commercial",
+      "mixed-use": "Mixed-Use"
+    },
+    "constructionTimeline": "Construction timeline",
+    "masterPlan": "Master plan",
+    "availableUnitsInProject": "Available units in this project",
+    "aboutDeveloper": "About the developer",
+    "visitWebsite": "Visit website"
   },
   "rentalService": {
     "headerTitle": "Rental service",

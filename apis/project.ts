@@ -1,10 +1,22 @@
 import { Axios } from '@/lib/api';
+import type { Listing } from '@/lib/api';
 
 export type ProjectImage = {
   publicId?: string;
   url: string;
   filename?: string;
   uploadedAt?: string;
+};
+
+export type ProjectTimelineUpdate = {
+  _id?: string;
+  date?: string;
+  title?: string;
+  title_ar?: string;
+  description?: string;
+  description_ar?: string;
+  images?: ProjectImage[];
+  progressPercentage?: number;
 };
 
 export type ProjectDeveloper = {
@@ -95,12 +107,16 @@ export type Project = {
   overallProgress?: number;
   totalUnits?: number;
   availableUnits?: number;
+  isAvailable?: boolean;
   unitTypes?: ProjectUnitType[];
   paymentPlans?: ProjectPaymentPlan[];
+  constructionTimeline?: ProjectTimelineUpdate[];
   amenities?: ProjectAmenity[];
   nearbyPlaces?: ProjectNearbyPlace[];
   coverImage?: string;
   gallery?: ProjectImage[];
+  masterPlan?: string;
+  brochure?: string;
   videoUrl?: string;
   contactPhone?: string;
   contactEmail?: string;
@@ -147,5 +163,16 @@ export const projectAPI = {
   getProjectBySlugOrId: async (identifier: string): Promise<Project | null> => {
     const { data } = await Axios.get(`/projects/slug/${encodeURIComponent(identifier)}`);
     return (data?.data ?? data) as Project | null;
+  },
+
+  // Real estate listings linked to this project (approved, unsold units).
+  // Requires the project's Mongo _id, not its slug.
+  getProjectListings: async (
+    projectId: string,
+    params: { page?: number; limit?: number } = {}
+  ): Promise<Listing[]> => {
+    const { data } = await Axios.get(`/projects/${projectId}/listings`, { params });
+    if (Array.isArray(data)) return data as Listing[];
+    return (data?.data ?? []) as Listing[];
   },
 };

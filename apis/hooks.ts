@@ -191,6 +191,19 @@ export function useProject(identifier: string | undefined) {
   });
 }
 
+/** Real estate listings linked to a project (available units). Needs the project _id. */
+export function useProjectListings(
+  projectId: string | undefined,
+  params: { page?: number; limit?: number } = {}
+) {
+  return useQuery({
+    queryKey: ['project', 'listings', projectId, params],
+    queryFn: () => projectAPI.getProjectListings(projectId as string, params),
+    enabled: !!projectId,
+    staleTime: 60 * 1000,
+  });
+}
+
 // ---- Favorites (heart) ----
 
 /** Set of favorited listing ids for the current user. Only fetches when signed in. */

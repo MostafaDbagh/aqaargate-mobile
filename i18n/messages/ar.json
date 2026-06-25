@@ -704,7 +704,23 @@
     "retry": "إعادة المحاولة",
     "emptyTitle": "لا توجد مشاريع",
     "emptyMessage": "جرّب بحثًا أو تصفية مختلفة.",
-    "resetFilters": "إعادة ضبط الفلاتر"
+    "resetFilters": "إعادة ضبط الفلاتر",
+    "startingFrom": "يبدأ من",
+    "registerInterest": "سجّل اهتمامك",
+    "downloadBrochure": "تحميل الكتيب",
+    "watchVideo": "شاهد الفيديو",
+    "completionDate": "تاريخ الانتهاء",
+    "projectType": "النوع",
+    "projectTypes": {
+      "residential": "سكني",
+      "commercial": "تجاري",
+      "mixed-use": "متعدد الاستخدامات"
+    },
+    "constructionTimeline": "تسلسل البناء الزمني",
+    "masterPlan": "المخطط الرئيسي",
+    "availableUnitsInProject": "الوحدات المتاحة في المشروع",
+    "aboutDeveloper": "عن المطور",
+    "visitWebsite": "زيارة الموقع"
   },
   "rentalService": {
     "headerTitle": "خدمة التأجير",

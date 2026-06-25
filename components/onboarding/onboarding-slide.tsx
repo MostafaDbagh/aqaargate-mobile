@@ -31,7 +31,9 @@ const BLUR_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 /** Shared hero-card frame so the photo and logo slides line up identically. */
 const cardStyle = {
   width: '80%',
-  aspectRatio: 0.74,
+  // Less tall than a full portrait card — the hero photo was overflowing the
+  // available height. Height ≈ cardWidth / aspectRatio, so a larger ratio = shorter card.
+  aspectRatio: 0.95,
   shadowColor: '#2c2e33',
   shadowOpacity: 0.16,
   shadowRadius: 26,
@@ -113,7 +115,7 @@ export function OnboardingSlide({
 
       {/* ── Copy: icon + title on one row, description below ──────── */}
       <View
-        className="flex-1 w-full pt-12"
+        className="flex-1 w-full pt-8"
         style={{ alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
         <View
           className="flex-row items-center"

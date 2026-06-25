@@ -9,9 +9,11 @@ import type {
   Project,
   ProjectNearbyPlace,
   ProjectPaymentPlan,
+  ProjectTimelineUpdate,
   ProjectUnitType,
 } from '@/apis/project';
-import { useProject } from '@/apis/hooks';
+import { useProject, useProjectListings } from '@/apis/hooks';
+import { PropertyCard } from '@/components/property-card';
 import { DetailScreenSkeleton } from '@/components/skeletons/screen-skeletons';
 
 const formatPriceRange = (
@@ -126,6 +128,7 @@ function ProjectBody({
   locale: string;
 }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const name = isRTL ? project.name_ar || project.name : project.name;
   const description = isRTL
     ? project.description_ar || project.description
@@ -133,6 +136,10 @@ function ProjectBody({
   const developerName = isRTL
     ? project.developer?.name_ar || project.developer?.name
     : project.developer?.name;
+  const developerDesc = isRTL
+    ? project.developer?.description_ar || project.developer?.description
+    : project.developer?.description;
+  const address = isRTL ? project.address_ar || project.address : project.address;
   const cityLine = [
     isRTL ? project.neighborhood_ar || project.neighborhood : project.neighborhood,
     project.city,
@@ -146,6 +153,25 @@ function ProjectBody({
   );
   const handoverDate = formatDate(project.handoverDate, locale);
   const launchDate = formatDate(project.launchDate, locale);
+  const completionDate = formatDate(project.completionDate, locale);
+  const projectTypeLabel = project.projectType
+    ? t(`projectsScreen.projectTypes.${project.projectType}`, {
+        defaultValue: project.projectType,
+      })
+    : null;
+  const timeline = project.constructionTimeline ?? [];
+
+  // Real estate units linked to this project (available units in the project).
+  const { data: availableUnits } = useProjectListings(project._id, { limit: 12 });
+  const units = availableUnits ?? [];
+
+  const onRegisterInterest = () => router.push('/interested-buyer');
+  const onBrochure = () => {
+    if (project.brochure) Linking.openURL(project.brochure);
+  };
+  const onVideo = () => {
+    if (project.videoUrl) Linking.openURL(project.videoUrl);
+  };
 
   const onCall = () => {
     if (project.contactPhone)
@@ -230,12 +256,64 @@ function ProjectBody({
           </View>
         ) : null}
 
-        {priceText ? (
+        {address ? (
           <Text
-            className="text-primary text-[20px] font-extrabold mt-3"
+            className="text-note text-[12px] mt-1"
             style={{ textAlign: isRTL ? 'right' : 'left' }}>
-            {priceText}
+            {address}
           </Text>
+        ) : null}
+
+        {priceText ? (
+          <View className="mt-3">
+            <Text
+              className="text-text text-[11px] font-medium"
+              style={{ textAlign: isRTL ? 'right' : 'left' }}>
+              {t('projectsScreen.startingFrom')}
+            </Text>
+            <Text
+              className="text-primary text-[20px] font-extrabold"
+              style={{ textAlign: isRTL ? 'right' : 'left' }}>
+              {priceText}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* Primary CTA — register interest, mirrors the web detail page */}
+        <Pressable
+          onPress={onRegisterInterest}
+          className="bg-primary rounded-xl py-3.5 items-center mt-4 active:opacity-90">
+          <Text className="text-white text-[15px] font-extrabold">
+            {t('projectsScreen.registerInterest')}
+          </Text>
+        </Pressable>
+
+        {/* Secondary actions — brochure / video tour when available */}
+        {project.brochure || project.videoUrl ? (
+          <View
+            className="flex-row gap-2 mt-2"
+            style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+            {project.brochure ? (
+              <Pressable
+                onPress={onBrochure}
+                className="flex-1 flex-row items-center justify-center gap-2 bg-cream border border-line rounded-xl py-3 active:opacity-80">
+                <Ionicons name="document-text-outline" size={16} color="#2c2e33" />
+                <Text className="text-secondary text-[13px] font-bold">
+                  {t('projectsScreen.downloadBrochure')}
+                </Text>
+              </Pressable>
+            ) : null}
+            {project.videoUrl ? (
+              <Pressable
+                onPress={onVideo}
+                className="flex-1 flex-row items-center justify-center gap-2 bg-cream border border-line rounded-xl py-3 active:opacity-80">
+                <Ionicons name="play-circle-outline" size={16} color="#2c2e33" />
+                <Text className="text-secondary text-[13px] font-bold">
+                  {t('projectsScreen.watchVideo')}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
       </View>
 
@@ -264,6 +342,20 @@ function ProjectBody({
               icon="rocket-outline"
               label={t('projectsScreen.launch')}
               value={launchDate}
+            />
+          ) : null}
+          {completionDate ? (
+            <StatTile
+              icon="checkmark-done-outline"
+              label={t('projectsScreen.completionDate')}
+              value={completionDate}
+            />
+          ) : null}
+          {projectTypeLabel ? (
+            <StatTile
+              icon="grid-outline"
+              label={t('projectsScreen.projectType')}
+              value={projectTypeLabel}
             />
           ) : null}
         </View>
@@ -341,6 +433,30 @@ function ProjectBody({
         </View>
       ) : null}
 
+      {/* Construction timeline — off-plan updates with dates / photos */}
+      {project.status === 'off-plan' && timeline.length > 0 ? (
+        <View className="px-5 mt-5">
+          <Text
+            className="text-secondary text-[15px] font-extrabold mb-2"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('projectsScreen.constructionTimeline')}
+          </Text>
+          {[...timeline]
+            .sort(
+              (a, b) =>
+                new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime()
+            )
+            .map((u, idx) => (
+              <TimelineRow
+                key={u._id ?? idx}
+                update={u}
+                isRTL={isRTL}
+                locale={locale}
+              />
+            ))}
+        </View>
+      ) : null}
+
       {/* Amenities */}
       {project.amenities && project.amenities.length > 0 ? (
         <View className="px-5 mt-5">
@@ -374,6 +490,37 @@ function ProjectBody({
               );
             })}
           </View>
+        </View>
+      ) : null}
+
+      {/* Master plan */}
+      {project.masterPlan ? (
+        <View className="px-5 mt-5">
+          <Text
+            className="text-secondary text-[15px] font-extrabold mb-2"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('projectsScreen.masterPlan')}
+          </Text>
+          <Image
+            source={{ uri: project.masterPlan }}
+            style={{ width: '100%', height: 220, borderRadius: 16 }}
+            contentFit="cover"
+            transition={150}
+          />
+        </View>
+      ) : null}
+
+      {/* Available units in this project (linked real estate listings) */}
+      {units.length > 0 ? (
+        <View className="px-5 mt-5">
+          <Text
+            className="text-secondary text-[15px] font-extrabold mb-3"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('projectsScreen.availableUnitsInProject')}
+          </Text>
+          {units.map((unit) => (
+            <PropertyCard key={unit._id} listing={unit} variant="compact" />
+          ))}
         </View>
       ) : null}
 
@@ -413,6 +560,49 @@ function ProjectBody({
           {project.nearbyPlaces.map((p, idx) => (
             <NearbyRow key={p._id ?? idx} place={p} isRTL={isRTL} />
           ))}
+        </View>
+      ) : null}
+
+      {/* About the developer */}
+      {developerName &&
+      (project.developer?.logo || developerDesc || project.developer?.website) ? (
+        <View className="mx-5 mt-6 p-4 bg-cream rounded-2xl border border-line">
+          <Text
+            className="text-secondary text-[15px] font-extrabold mb-3"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {t('projectsScreen.aboutDeveloper')}
+          </Text>
+          {project.developer?.logo ? (
+            <Image
+              source={{ uri: project.developer.logo }}
+              style={{ width: 120, height: 52, marginBottom: 10 }}
+              contentFit="contain"
+              transition={150}
+            />
+          ) : null}
+          <Text
+            className="text-secondary text-[14px] font-extrabold"
+            style={{ textAlign: isRTL ? 'right' : 'left' }}>
+            {developerName}
+          </Text>
+          {developerDesc ? (
+            <Text
+              className="text-text text-[13px] leading-5 mt-1"
+              style={{ textAlign: isRTL ? 'right' : 'left' }}>
+              {developerDesc}
+            </Text>
+          ) : null}
+          {project.developer?.website ? (
+            <Pressable
+              onPress={() => Linking.openURL(project.developer!.website!)}
+              className="mt-3 flex-row items-center gap-1.5"
+              style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+              <Ionicons name="globe-outline" size={15} color="#f1913d" />
+              <Text className="text-primary text-[13px] font-bold">
+                {t('projectsScreen.visitWebsite')}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
       ) : null}
 
@@ -588,6 +778,74 @@ function PaymentPlanCard({
           );
         })}
       </View>
+    </View>
+  );
+}
+
+function TimelineRow({
+  update,
+  isRTL,
+  locale,
+}: {
+  update: ProjectTimelineUpdate;
+  isRTL: boolean;
+  locale: string;
+}) {
+  const title = isRTL ? update.title_ar || update.title : update.title;
+  const description = isRTL
+    ? update.description_ar || update.description
+    : update.description;
+  const dateText = formatDate(update.date, locale);
+
+  return (
+    <View className="bg-cream rounded-2xl border border-line p-3 mb-2">
+      <View
+        className="flex-row items-center justify-between mb-1"
+        style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
+        {dateText ? (
+          <Text className="text-text text-[12px] font-medium">{dateText}</Text>
+        ) : (
+          <View />
+        )}
+        {typeof update.progressPercentage === 'number' &&
+        update.progressPercentage > 0 ? (
+          <View className="px-2 py-0.5 rounded-full bg-[#f1913d1A]">
+            <Text className="text-primary text-[11px] font-extrabold">
+              {update.progressPercentage}%
+            </Text>
+          </View>
+        ) : null}
+      </View>
+      {title ? (
+        <Text
+          className="text-secondary text-[14px] font-extrabold"
+          style={{ textAlign: isRTL ? 'right' : 'left' }}>
+          {title}
+        </Text>
+      ) : null}
+      {description ? (
+        <Text
+          className="text-text text-[13px] leading-5 mt-1"
+          style={{ textAlign: isRTL ? 'right' : 'left' }}>
+          {description}
+        </Text>
+      ) : null}
+      {update.images && update.images.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8, paddingTop: 10 }}>
+          {update.images.map((img, idx) => (
+            <Image
+              key={img.publicId ?? `${img.url}-${idx}`}
+              source={{ uri: img.url }}
+              style={{ width: 160, height: 110, borderRadius: 10 }}
+              contentFit="cover"
+              transition={150}
+            />
+          ))}
+        </ScrollView>
+      ) : null}
     </View>
   );
 }
